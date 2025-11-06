@@ -1,5 +1,9 @@
-import React from 'react';
+import React from "react";
 
-export default function MyPage(){
-    return <h1> MyPage </h1>;
+export default function MyPage() {
+  return (
+    <div className="w-full">
+      <h1> MyPage </h1>
+    </div>
+  );
 }
