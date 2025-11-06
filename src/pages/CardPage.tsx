@@ -1,5 +1,5 @@
-import React from 'react';
+import React from "react";
 
-export default function CardPage(){
-    return <h1> CardPage </h1>;
+export default function CardPage() {
+  return <h1> CardPage </h1>;
 }

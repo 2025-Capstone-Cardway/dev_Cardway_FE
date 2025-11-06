@@ -1,8 +1,11 @@
-@tailwind base;       
-@tailwind components; 
-@tailwind utilities;  
+@import "tailwindcss";
 
 body {
   margin: 0;
+}
 
+@theme {
+  --color-orange-main: #f98613;
+  --color-border-main: #e8e8ed;
+  --color-text-main: #292956;
 }
