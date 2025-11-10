@@ -1,5 +1,5 @@
 import axios from 'axios';
-import kakao_login_medium_wide from "../../assets/login/kakao_login_medium_wide.png";
+import kakao_login from "../../assets/login/kakao_login.png";
 
 
 const KakaoLoginButton = () => {
@@ -18,10 +18,11 @@ const KakaoLoginButton = () => {
         }
     };
     return (
-        <button onClick={handleLogin}>
+        <button onClick={handleLogin} className="flex items-center justify-center h-12 rounded-lg bg-[#FEE500] hover:bg-[#FDD835] transition">
             <img
-                src={kakao_login_medium_wide}
+                src={kakao_login}
                 alt="카카오 로그인"
+                className='w-full h-full object-contain'
             />
         </button>
     )

@@ -16,7 +16,7 @@ function App() {
           <Route path="/cardpage" element={<CardPage />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/oauth/callback" element={<AuthCallback />}/>
+          <Route path="/oauth/callback/*" element={<AuthCallback />}/>
         </Route>
       </Routes>
     </BrowserRouter>
