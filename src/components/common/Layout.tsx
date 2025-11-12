@@ -8,7 +8,7 @@ export default function Layout() {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center bg-gray-50">
-      <main className="flex-1 w-full max-w-md p-4 bg-white z-10">
+      <main className="flex-1 w-full max-w-md bg-white z-10">
         <Outlet />
       </main>
       {!hideNav && (
