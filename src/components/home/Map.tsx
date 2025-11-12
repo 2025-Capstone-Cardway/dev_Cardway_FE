@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SearchBar from "../common/SearchBar";
+import usePositionStore from "../../store/position";
 
 declare global {
   interface Window {
@@ -10,16 +11,14 @@ declare global {
 export default function Map() {
   const [mapView, setMapView] = useState<any>(null);
 
-  const [position, setPosition] = useState<{ lat: number; long: number }>({
-    lat: 0,
-    long: 0,
-  });
+  //   const [position, setPosition] = useState<{ lat: number; long: number }>({
+  //     lat: 0,
+  //     long: 0,
+  //   });
+  const { position, setPosition } = usePositionStore();
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {
-      setPosition({
-        lat: pos.coords.latitude,
-        long: pos.coords.longitude,
-      });
+      setPosition(pos.coords.latitude, pos.coords.longitude);
     });
   }, []);
   useEffect(() => {
@@ -46,12 +45,8 @@ export default function Map() {
     const handleClick = (mouseEvent: any) => {
       const latlng = mouseEvent.latLng;
 
-      const newPosition = {
-        lat: latlng.getLat(),
-        long: latlng.getLng(),
-      };
-      console.log("마커 위치:", newPosition);
-      setPosition(newPosition);
+      console.log("마커 위치:", latlng.getLat(), latlng.getLng());
+      setPosition(latlng.getLat(), latlng.getLng());
       createdMarker.setPosition(latlng);
     };
 
