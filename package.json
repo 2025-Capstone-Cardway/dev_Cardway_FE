@@ -11,16 +11,12 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
-<<<<<<< HEAD
     "axios": "^1.13.2",
-=======
     "dotenv": "^17.2.3",
->>>>>>> 9b12e9aa86ce8ee6f2d548e293b28594cafeade9
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.5",
-    "tailwindcss": "^4.1.16",
-    "zustand": "^5.0.8"
+    "tailwindcss": "^4.1.16"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
