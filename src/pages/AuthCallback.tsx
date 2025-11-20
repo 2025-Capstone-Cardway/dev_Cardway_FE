@@ -1,11 +1,12 @@
 import React from "react";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import useAuthStore from "../store/auth";
 
 const AuthCallback = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const setToken = useAuthStore(state => state.setToken);
 
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);

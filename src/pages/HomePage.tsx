@@ -1,5 +1,8 @@
-import React from "react";
-
+import Map from "../components/home/Map";
 export default function HomePage() {
-  return "Homepage";
+  return (
+    <div>
+      <Map />
+    </div>
+  );
 }
