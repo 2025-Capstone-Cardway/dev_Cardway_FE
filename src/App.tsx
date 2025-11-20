@@ -5,6 +5,7 @@ import CardPage from "./pages/CardPage";
 import MyPage from "./pages/MyPage";
 import Layout from "./components/common/Layout";
 import LoginPage from "./pages/LoginPage";
+import AuthCallback from "./pages/AuthCallback";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/cardpage" element={<CardPage />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/oauth/callback/*" element={<AuthCallback />}/>
         </Route>
       </Routes>
     </BrowserRouter>
