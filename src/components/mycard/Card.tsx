@@ -1,48 +1,105 @@
-import type { Card,Benefit } from './types/Card';
+import type { Card } from './types/Card';
 
 interface CardProps {
   card: Card;
+  onToggleMainCard?: (cardId: number) => void;
 }
 
 
-export default function CardView({ card }: CardProps) {
-    const {image, name, company, benefit,isMainCard} = card;
+export default function CardView({ card, onToggleMainCard }: CardProps) {
+    const {id, image, name, company, benefit, isMainCard} = card;
 
     const containerClasses = isMainCard
       ? "border-2 border-orange-main shadow-lg"
       : "border border-gray-200 shadow-md";
     return(
       <div 
-      className={`bg-white rounded-2xl p-4 flex items-start gap-4 w-full overflow-hidden shadow-md ${containerClasses}`}>
-        {image&& (
-          <img src ={image} alt={`${name}카드이미지`} className='w-[90px] h-[139px] object-cover rounded-lg flex-shrink-0'></img>
+        className={`relative flex flex-row items-center gap-[10px] w-full h-[169px] p-[15px] pr-[15px] rounded-[10px] box-border ${containerClasses}`}
+        style={{ fontFamily: 'Noto Sans KR, Inter, sans-serif' }}
+      >
+        {/* Card Image */}
+        {image && (
+          <img 
+            src={image} 
+            alt={`${name}카드이미지`} 
+            className="w-[90px] h-[139px] object-cover flex-none"
+          />
         )}
-        <div className="flex flex-col flex-grow min-w-0">
-          <div className="text-xl font-semibold text-text-main leading-normal mt-2 mb-2">
+        
+        {/* Content Container (Frame 7) */}
+        <div className="flex flex-col items-start gap-[10px] flex-1 min-w-0 h-[131px] pr-[30px]">
+          {/* Card Name */}
+          <div 
+            className="w-full h-[19px] font-medium text-[16px] leading-[19px] text-black flex-none"
+            style={{ fontFamily: 'Noto Sans KR' }}
+          >
             {name}
           </div>
-          <div className="text-base text-gray-500 mb-3">
+          
+          {/* Company Name */}
+          <div 
+            className="w-full h-[15px] font-normal text-[12px] leading-[15px] text-[#757575] flex-none"
+            style={{ fontFamily: 'Inter' }}
+          >
             {company}
           </div>
 
+          {/* Tags Container (Frame 10) */}
           {benefit && benefit.length > 0 && (
-            <div className="flex flex-wrap gap-2"> 
+            <div className="flex flex-row flex-wrap items-start content-start gap-[5px] max-w-full flex-none">
               {benefit.map((b, index) => (
                 <span
                   key={index}
-                  className="
-                    px-3 py-1 text-sm font-medium 
-                    text-gray-600 bg-gray-50 
-                    border border-gray-300 rounded-full
-                  "
+                  className="relative bg-white border border-[#D9D9D9] rounded-[5px] px-[8px] py-px flex-none inline-flex items-center"
                 >
-                  {b.category}
+                  <span 
+                    className="font-normal text-[10px] leading-[12px] text-[#757575]"
+                    style={{ fontFamily: 'Inter' }}
+                  >
+                    {b.category}
+                  </span>
                 </span>
               ))}
             </div>
           )}
         </div>
+
+        {/* Star Icon (Frame 25) */}
+        <button 
+          className="absolute top-[15px] right-[15px] w-[20px] h-[20px] cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => onToggleMainCard?.(id)}
+          aria-label="메인카드로 설정"
+        >
+          {isMainCard ? (
+            <svg 
+              className="w-full h-full" 
+              viewBox="0 0 20 20" 
+              fill="#f98613"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                d="M10 2L12.245 7.905L18 8.5L14 12.755L15.49 18L10 15.245L4.51 18L6 12.755L2 8.5L7.755 7.905L10 2Z" 
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </svg>
+          ) : (
+            <svg 
+              className="w-full h-full" 
+              viewBox="0 0 20 20" 
+              fill="none"
+              stroke="#E8E8ED"
+              strokeWidth="1"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                d="M10 2L12.245 7.905L18 8.5L14 12.755L15.49 18L10 15.245L4.51 18L6 12.755L2 8.5L7.755 7.905L10 2Z" 
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </svg>
+          )}
+        </button>
       </div>
-      
     );
 }
