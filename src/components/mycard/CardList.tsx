@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import type{Card, Benefit } from './types/Card';
 import CardView from './Card';
+import AddCardButton from './AddCardButton';
 import basicCardImage from '../../assets/card/basiccard.png'
 
 const mockBenefits: Benefit[] = [
@@ -49,43 +51,40 @@ export default function CardList(){
         );
     };
 
+    const sortedCards = [...cards].sort((a, b) => {
+        if (a.isMainCard && !b.isMainCard) return -1;
+        if (!a.isMainCard && b.isMainCard) return 1;
+        return 0;
+    });
+
     return(
-        <div className="w-full px-4 max-w-[480px] mx-auto space-y-3 -mt-4">
-            {/* Add Card Button */}
-            <div className="flex justify-center">
-                <button 
-                    className="flex flex-row items-center justify-center gap-3 px-5 h-[40px] bg-white border border-[rgba(17,17,67,0.1)] rounded-[28px] hover:bg-gray-50 transition-colors"
-                    style={{
-                        boxShadow: '1px 1px 2px rgba(0, 0, 0, 0.1), -1px -1px 2px rgba(0, 0, 0, 0.1)'
+        <div className="w-full px-4 max-w-[480px] mx-auto space-y-3">
+            <AddCardButton />
+            {sortedCards.map((card, index) => (
+                <motion.div
+                    key={card.id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                        layout: { 
+                            type: "spring", 
+                            stiffness: 300, 
+                            damping: 30 
+                        },
+                        opacity: { duration: 0.2 }
+                    }}
+                    style={{ 
+                        position: 'relative', 
+                        zIndex: sortedCards.length - index,
+                        isolation: 'isolate'
                     }}
                 >
-                    {/* Plus Icon in Circle */}
-                    <div className="w-6 h-6 rounded-full border-2 border-[#111143] flex items-center justify-center">
-                        <svg 
-                            width="14" 
-                            height="14" 
-                            viewBox="0 0 14 14" 
-                            fill="none" 
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path 
-                                d="M7 1V13M1 7H13" 
-                                stroke="#111143" 
-                                strokeWidth="2" 
-                                strokeLinecap="round"
-                            />
-                        </svg>
-                    </div>
-                    <span className="text-base font-medium text-[#111143]">Add Card</span>
-                </button>
-            </div>
-
-            {cards.map((card) => (
-                <CardView 
-                    key={card.id} 
-                    card={card}
-                    onToggleMainCard={handleToggleMainCard}
-                />
+                    <CardView 
+                        card={card}
+                        onToggleMainCard={handleToggleMainCard}
+                    />
+                </motion.div>
             ))}
         </div>
     );

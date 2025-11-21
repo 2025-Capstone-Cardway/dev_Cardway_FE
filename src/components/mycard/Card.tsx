@@ -14,8 +14,8 @@ export default function CardView({ card, onToggleMainCard }: CardProps) {
       : "border border-gray-200 shadow-md";
     return(
       <div 
-        className={`relative flex flex-row items-center gap-[10px] w-full h-[169px] p-[15px] pr-[15px] rounded-[10px] box-border ${containerClasses}`}
-        style={{ fontFamily: 'Noto Sans KR, Inter, sans-serif' }}
+        className={`relative flex flex-row items-center gap-[20px] w-full h-[169px] p-[15px] pr-[15px] rounded-[10px] box-border bg-white ${containerClasses}`}
+        style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
       >
         {/* Card Image */}
         {image && (
@@ -26,7 +26,7 @@ export default function CardView({ card, onToggleMainCard }: CardProps) {
           />
         )}
         
-        {/* Content Container (Frame 7) */}
+        {/* Content Container */}
         <div className="flex flex-col items-start gap-[10px] flex-1 min-w-0 h-[131px] pr-[30px]">
           {/* Card Name */}
           <div 
@@ -39,22 +39,22 @@ export default function CardView({ card, onToggleMainCard }: CardProps) {
           {/* Company Name */}
           <div 
             className="w-full h-[15px] font-normal text-[12px] leading-[15px] text-[#757575] flex-none"
-            style={{ fontFamily: 'Inter' }}
+            style={{ fontFamily: 'Noto Sans KR' }}
           >
             {company}
           </div>
 
-          {/* Tags Container (Frame 10) */}
+          {/* Tags Container */}
           {benefit && benefit.length > 0 && (
             <div className="flex flex-row flex-wrap items-start content-start gap-[5px] max-w-full flex-none">
               {benefit.map((b, index) => (
                 <span
                   key={index}
-                  className="relative bg-white border border-[#D9D9D9] rounded-[5px] px-[8px] py-px flex-none inline-flex items-center"
+                  className="relative bg-gray-50 border border-[#D9D9D9] rounded-[7px] px-[8px] py-1 flex-none inline-flex items-center"
                 >
                   <span 
                     className="font-normal text-[10px] leading-[12px] text-[#757575]"
-                    style={{ fontFamily: 'Inter' }}
+                    style={{ fontFamily: 'Noto Sans KR' }}
                   >
                     {b.category}
                   </span>
@@ -64,7 +64,7 @@ export default function CardView({ card, onToggleMainCard }: CardProps) {
           )}
         </div>
 
-        {/* Star Icon (Frame 25) */}
+        {/* Star Button (main Card 설정 버튼) */}
         <button 
           className="absolute top-[15px] right-[15px] w-[20px] h-[20px] cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => onToggleMainCard?.(id)}
