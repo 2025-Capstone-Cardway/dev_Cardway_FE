@@ -102,16 +102,9 @@ export default function CardRegisterPage() {
           },
         }
       );
-
-      console.log(res.data.data);
-
-      if (res.data.data === false) {
-        navigate("/card/register/info", {
-          state: { card },
-        });
-      } else {
-        navigate("/cardPage");
-      }
+      navigate("/card/register/info", {
+        state: { card, connected: res.data.data },
+      });
     } catch (error) {
       console.error("Axios Error:", error);
     }
@@ -134,7 +127,7 @@ export default function CardRegisterPage() {
               ${card.code === b.code ? "border border-orange-main" : ""}`}
           >
             <img src={b.img} alt={b.name} className="w-10 h-10 rounded-full" />
-            <div className="text-text-main">{b.name}</div>
+            <div className="text-text-main text-sm">{b.name}</div>
           </div>
         ))}
       </div>
