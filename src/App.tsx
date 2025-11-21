@@ -6,6 +6,8 @@ import MyPage from "./pages/MyPage";
 import Layout from "./components/common/Layout";
 import LoginPage from "./pages/LoginPage";
 import AuthCallback from "./pages/AuthCallback";
+import CardRegisterPage from "./pages/CardRegisterPage";
+import CardRegisterInfoPage from "./pages/CardRegisterInfoPage";
 
 function App() {
   return (
@@ -16,7 +18,12 @@ function App() {
           <Route path="/cardpage" element={<CardPage />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/oauth/callback/*" element={<AuthCallback />}/>
+          <Route path="/oauth/callback/*" element={<AuthCallback />} />
+          <Route path="/card/register" element={<CardRegisterPage />} />
+          <Route
+            path="/card/register/info"
+            element={<CardRegisterInfoPage />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>
