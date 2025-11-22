@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import AuthCallback from "./pages/AuthCallback";
 import CardRegisterPage from "./pages/CardRegisterPage";
 import CardRegisterInfoPage from "./pages/CardRegisterInfoPage";
+import CardDetailPage from "./pages/CardDetailPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/cardpage" element={<CardPage />} />
+          <Route path="/card/:cardId" element={<CardDetailPage />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/oauth/callback/*" element={<AuthCallback />} />
