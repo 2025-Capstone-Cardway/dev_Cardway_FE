@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import type { Card } from '../mycard/types/Card';
 import basicCardImage from '../../assets/card/basiccard.png';
 
@@ -46,23 +47,40 @@ export default function MyWallet() {
         <h2 className="text-lg font-bold text-text-main mb-4">내 지갑</h2>
       </div>
       
-      {/* 가로 스크롤 카드 리스트 */}
+      {/* 카드 리스트 (가로 스크롤)*/}
       <div className="px-8">
-        <div className="overflow-x-auto scrollbar-hide -mx-2">
-          <div className="flex gap-4 px-2 pb-2">
-            {cards.map((card) => (
-              <div 
+        <div className="overflow-x-auto overflow-y-visible scrollbar-hide -mx-2">
+          <div className="flex gap-4 px-2 py-3">
+            {cards.map((card, index) => (
+              <motion.div 
                 key={card.id} 
-                className="shrink-0"
+                className="shrink-0 cursor-pointer"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.3,
+                  delay: index * 0.1,
+                  ease: "easeOut"
+                }}
+                whileHover={{ 
+                  y: -8,
+                  transition: { duration: 0.2 }
+                }}
+                whileTap={{ scale: 0.98 }}
               >
                 {/* 카드 이미지 */}
-                <div className="w-24 h-36 rounded-xl overflow-hidden shadow-md">
+                <motion.div 
+                  className="w-24 h-36 rounded-xl overflow-hidden shadow-md"
+                  whileHover={{
+                    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)"
+                  }}
+                >
                   <img 
                     src={card.image} 
                     alt={card.name}
                     className="w-full h-full object-cover"
                   />
-                </div>
+                </motion.div>
                 
                 {/* 카드 정보 */}
                 <div className="mt-2 text-center">
@@ -73,7 +91,7 @@ export default function MyWallet() {
                     {card.company}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
