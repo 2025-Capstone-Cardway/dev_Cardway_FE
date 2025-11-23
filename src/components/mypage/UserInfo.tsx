@@ -32,7 +32,7 @@ export default function UserInfo() {
           <img 
             src={userProfile.profileImage} 
             alt={userProfile.nickname}
-            className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+            className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
           />
         </div>
         
