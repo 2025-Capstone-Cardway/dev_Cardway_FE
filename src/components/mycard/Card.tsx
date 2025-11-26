@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import type { Card } from './types/Card';
 
 interface CardProps {
@@ -8,13 +9,20 @@ interface CardProps {
 
 export default function CardView({ card, onToggleMainCard }: CardProps) {
     const {id, image, name, company, benefit, isMainCard} = card;
+    const navigate = useNavigate();
 
     const containerClasses = isMainCard
       ? "border-2 border-orange-main shadow-lg"
       : "border border-gray-200 shadow-md";
+
+    const handleCardClick = () => {
+        navigate(`/card/${id}`);
+    };
+
     return(
       <div 
-        className={`relative flex flex-row items-center gap-[20px] w-full h-[169px] p-[15px] pr-[15px] rounded-[10px] box-border bg-white ${containerClasses}`}
+        onClick={handleCardClick}
+        className={`relative flex flex-row items-center gap-[20px] w-full h-[169px] p-[15px] pr-[15px] rounded-[10px] box-border bg-white cursor-pointer hover:shadow-xl transition-shadow ${containerClasses}`}
         style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
       >
         {/* Card Image */}
@@ -67,7 +75,10 @@ export default function CardView({ card, onToggleMainCard }: CardProps) {
         {/* Star Button (main Card 설정 버튼) */}
         <button 
           className="absolute top-[15px] right-[15px] w-[20px] h-[20px] cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => onToggleMainCard?.(id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleMainCard?.(id);
+          }}
           aria-label="메인카드로 설정"
         >
           {isMainCard ? (
