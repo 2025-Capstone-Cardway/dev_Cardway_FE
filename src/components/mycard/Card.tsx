@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
 import type { Card } from './types/Card';
+import useCardNavigation from '../../hooks/useCardNavigation';
 
 interface CardProps {
   card: Card;
@@ -9,14 +9,14 @@ interface CardProps {
 
 export default function CardView({ card, onToggleMainCard }: CardProps) {
     const {id, image, name, company, benefit, isMainCard} = card;
-    const navigate = useNavigate();
+    const navigateToCard = useCardNavigation();
 
     const containerClasses = isMainCard
       ? "border-2 border-orange-main shadow-lg"
       : "border border-gray-200 shadow-md";
 
     const handleCardClick = () => {
-        navigate(`/card/${id}`);
+        navigateToCard(id);
     };
 
     return(

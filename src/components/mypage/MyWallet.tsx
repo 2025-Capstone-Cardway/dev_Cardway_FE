@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { Card } from '../mycard/types/Card';
 import basicCardImage from '../../assets/card/basiccard.png';
+import useCardNavigation from '../../hooks/useCardNavigation';
 
 const mockCards: Card[] = [
     {
@@ -40,6 +41,7 @@ const mockCards: Card[] = [
 
 export default function MyWallet() {
     const [cards] = useState<Card[]>(mockCards);
+    const navigateToCard = useCardNavigation();
 
     return (
         <div className="w-full py-6 bg-white">
@@ -55,6 +57,7 @@ export default function MyWallet() {
                 <motion.div 
                     key={card.id} 
                     className="shrink-0 cursor-pointer"
+                    onClick={() => navigateToCard(card.id)}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
