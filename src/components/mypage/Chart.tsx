@@ -15,6 +15,14 @@ interface Transaction {
   storeType: string;
 }
 
+const CHART_COLORS = [
+  "#f98513",
+  "#bf681f",
+  "#854b2c",
+  "#4b2e38",
+  "#111144",
+];
+
 const MOCK_TRANSACTIONS: Transaction[] = [
   {
     transactionId: 15,
@@ -48,18 +56,10 @@ const MOCK_TRANSACTIONS: Transaction[] = [
 
 const formatDate = (date: Date) => date.toISOString().slice(0, 10);
 
-const getRangeByPreset = (preset: "7D" | "1M" | "3M"): DateRange => {
+const getDefaultRange = (): DateRange => {
   const endDate = new Date();
   const startDate = new Date(endDate);
-
-  if (preset === "7D") {
-    startDate.setDate(endDate.getDate() - 6);
-  } else if (preset === "1M") {
-    startDate.setMonth(endDate.getMonth() - 1);
-  } else if (preset === "3M") {
-    startDate.setMonth(endDate.getMonth() - 3);
-  }
-
+  startDate.setMonth(endDate.getMonth() - 1);
   return { start: formatDate(startDate), end: formatDate(endDate) };
 };
 
@@ -80,11 +80,9 @@ const aggregateTransactions = (transactions: Transaction[]) => {
 };
 
 export default function Chart() {
-  const [dateRange, setDateRange] = useState<DateRange>(() =>
-    getRangeByPreset("1M")
-  );
+  const [dateRange, setDateRange] = useState<DateRange>(() => getDefaultRange());
   const [pendingRange, setPendingRange] = useState<DateRange>(() =>
-    getRangeByPreset("1M")
+    getDefaultRange()
   );
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [series, setSeries] = useState<number[]>([]);
@@ -94,10 +92,23 @@ export default function Chart() {
 
   const chartOptions = useMemo<ApexOptions>(
     () => ({
-      chart: { type: "donut" },
-      colors: ["#9bacd8", "#8e9fce", " #8091c5",  "#7384bb",  "#6576b2","#5869a8","#4a5b9f","#3d4e95","#2f408c", "#223382"],
+      chart: {
+        type: "donut",
+        animations: { enabled: true },
+      },
+      colors: CHART_COLORS,
+      states: {
+        hover: {
+          filter: { type: "none" },
+        },
+        active: {
+          allowMultipleDataPointsSelection: false,
+          filter: { type: "none" },
+        },
+      },
       plotOptions: {
         pie: {
+          expandOnClick: false,
           donut: {
             size: "0%",
             labels: {
@@ -110,23 +121,32 @@ export default function Chart() {
       legend: {
         position: "bottom",
         fontSize: "12px",
+        markers: {
+          width: 10,
+          height: 10,
+          radius: 9999,
+          fillColors: CHART_COLORS,
+        },
+        onItemHover: {
+          highlightDataSeries: false,
+        },
       },
       dataLabels: {
-        formatter: (val, opts) => {
-          //const amount = series[opts.seriesIndex] ?? 0;
+        formatter: (val) => {
           const percent =
             typeof val === "number" ? val.toFixed(1) : Number(val).toFixed(1);
           return `${percent}%`;
         },
-        dropShadow: { enabled: false},
+        dropShadow: { enabled: false },
       },
       tooltip: {
         y: {
           formatter: (value: number) => `${value.toLocaleString()}원`,
         },
+        fillSeriesColor: true,
       },
     }),
-    [labels, series]
+    [labels]
   );
 
   useEffect(() => {
