@@ -4,6 +4,16 @@ body {
   margin: 0;
 }
 
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @theme {
   --color-orange-main: #f98613;
   --color-border-main: #e8e8ed;
