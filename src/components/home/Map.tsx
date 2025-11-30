@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import axios from "axios";
 import SearchBar from "./SearchBar";
 import usePositionStore from "../../store/position";
 import SearchResultList from "./SearchResultList";
@@ -20,6 +21,30 @@ export default function Map() {
   const [searchResults, setSearchResults] =
     useState<kakao.maps.services.PlacesSearchResult>([]);
   const [isSelected, setIsSelected] = useState<boolean>(false);
+
+  // useEffect(() => {
+  //   if (!position.lat || !position.long) return;
+  //   console.log("p", position);
+  //   const fetchBenefits = async () => {
+  //     try {
+  //       const res = await axios.get(
+  //         `${import.meta.env.VITE_API_BASE_URL}/api/auth/partners?x=${
+  //           position.long
+  //         }&y=${position.lat}`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${import.meta.env.VITE_TEMP_TOKEN}`,
+  //           },
+  //         }
+  //       );
+  //       console.log("혜택 조회 결과:", res.data);
+  //     } catch (err) {
+  //       console.error("Error fetching card benefits:", err);
+  //     }
+  //   };
+
+  //   fetchBenefits();
+  // }, [position]);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {

@@ -1,4 +1,5 @@
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import BackIcon from "../components/common/BackIcon";
 import { useState } from "react";
 import axios from "axios";
 import Loading from "../components/common/Loading";
@@ -62,47 +63,50 @@ export default function CardRegisterInfoPage() {
   };
 
   return (
-    <div className="w-full px-10 py-25 flex flex-col items-center gap-15">
-      {loading && (
-        <div className="fixed inset-0 flex justify-center items-center z-50">
-          <Loading />
-        </div>
-      )}
-      <div className="text-2xl text-text-main flex flex-col items-center">
-        <img src={img} className="w-20 h-20 rounded-full mb-5"></img>
-        <span className="text-orange-main font-bold">
-          {name}
-          <span className="text-text-main font-medium">의</span>
-        </span>
-        <span>회원 정보를 입력해주세요</span>
-        <Link to={url}>
-          {" "}
-          <span className="text-gray-300 font-light text-sm">
-            * 카드사 회원정보 확인하러 가기
+    <div className="w-full px-10 py-10">
+      <BackIcon />
+      <div className="w-full py-15 flex flex-col items-center gap-15">
+        {loading && (
+          <div className="fixed inset-0 flex justify-center items-center z-50">
+            <Loading />
+          </div>
+        )}
+        <div className="text-2xl text-text-main flex flex-col items-center">
+          <img src={img} className="w-20 h-20 rounded-full mb-5"></img>
+          <span className="text-orange-main font-bold">
+            {name}
+            <span className="text-text-main font-medium">의</span>
           </span>
-        </Link>
+          <span>회원 정보를 입력해주세요</span>
+          <Link to={url}>
+            {" "}
+            <span className="text-gray-300 font-light text-sm">
+              * 카드사 회원정보 확인하러 가기
+            </span>
+          </Link>
+        </div>
+        <div className="w-full flex flex-col items-center gap-5">
+          <input
+            placeholder="ID"
+            className="px-10 focus:outline-orange-main w-full h-14 border border-border-main p-2 rounded-2xl bg-white"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+          ></input>
+          <input
+            placeholder="PW"
+            type="password"
+            className="px-10 focus:outline-orange-main w-full h-14 border border-border-main p-2 rounded-2xl bg-white"
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+          ></input>
+        </div>
+        <button
+          onClick={handleSubmit}
+          className="w-full border border-border-main text-xl rounded-3xl mt-10 text-text-main h-12 shadow cursor-pointer"
+        >
+          {name} 등록하기
+        </button>
       </div>
-      <div className="w-full flex flex-col items-center gap-5">
-        <input
-          placeholder="ID"
-          className="px-10 focus:outline-orange-main w-full h-14 border border-border-main p-2 rounded-2xl bg-white"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
-        ></input>
-        <input
-          placeholder="PW"
-          type="password"
-          className="px-10 focus:outline-orange-main w-full h-14 border border-border-main p-2 rounded-2xl bg-white"
-          value={pw}
-          onChange={(e) => setPw(e.target.value)}
-        ></input>
-      </div>
-      <button
-        onClick={handleSubmit}
-        className="w-full border border-border-main text-xl rounded-3xl mt-10 text-text-main h-12 shadow cursor-pointer"
-      >
-        {name} 등록하기
-      </button>
     </div>
   );
 }
