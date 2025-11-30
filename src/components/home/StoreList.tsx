@@ -13,17 +13,15 @@ export interface Store {
   addressName: string;
   benefit: string;
 }
-interface Props {
-  isOpened: boolean;
-}
 
-export default function StoreList({ isOpened }: Props) {
+export default function StoreList() {
   const { position } = usePositionStore();
-  const [stores, setStores] = useState<Store[]>();
+  const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!position.lat || !position.long) return;
+
     const fetchBenefits = async () => {
       try {
         const res = await axios.get(
@@ -36,12 +34,12 @@ export default function StoreList({ isOpened }: Props) {
             },
           }
         );
-        console.log("혜택 조회 결과:", res.data);
-        setLoading(false);
+
         setStores(res.data);
-        console.log("s", stores);
       } catch (err) {
         console.error("Error fetching card benefits:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -63,23 +61,12 @@ export default function StoreList({ isOpened }: Props) {
       </div>
     );
   }
+
   return (
-    <div className="flex flex-col overflow-hidden">
-      <StoreCard store={stores?.[0]} />
-      <div
-        className={`
-            transition-all duration-300 
-            ${
-              isOpened
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-2 pointer-events-none"
-            }
-          `}
-      >
-        {stores?.slice(1)?.map((store) => (
-          <StoreCard key={store.partnerName} store={store} />
-        ))}
-      </div>
+    <div className="flex flex-col gap-3 pb-10">
+      {stores.map((store) => (
+        <StoreCard key={store.partnerName} store={store} />
+      ))}
     </div>
   );
 }
