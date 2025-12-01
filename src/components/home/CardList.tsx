@@ -4,6 +4,7 @@ import postIcon from "../../assets/chevron_backward.png";
 import axios from "axios";
 import usePositionStore from "../../store/position";
 import CardCard from "./CardCard";
+import type { SearchPlaceProps } from "./Modal";
 
 declare global {
   interface Window {
@@ -20,13 +21,21 @@ export interface CardInfo {
 
 const CATEGORY_CODES = ["FD6", "CE7", "CS2", "MT1", "CT1", "OL7"] as const;
 
-export default function CardList() {
+export default function CardList({ searchPlace }: SearchPlaceProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { position } = usePositionStore();
   const [nearestPlace, setNearestPlace] =
     useState<kakao.maps.services.PlacesSearchResultItem | null>(null);
   const [cards, setCards] = useState<CardInfo[]>([]);
+  console.log("n", nearestPlace);
+  console.log("s", searchPlace);
   useEffect(() => {
+    if (searchPlace) {
+      setNearestPlace(searchPlace);
+      return;
+    }
+
+    // 🔥 현위치 기반 최근접 매장 탐색
     if (!position.lat || !position.long) return;
 
     window.kakao.maps.load(() => {
@@ -48,17 +57,18 @@ export default function CardList() {
                     return;
                   }
 
-                  const sorted = [...data].sort(
+                  const nearest = [...data].sort(
                     (a, b) => Number(a.distance) - Number(b.distance)
-                  );
-                  resolve(sorted[0]);
+                  )[0];
+
+                  resolve(nearest);
                 },
                 {
                   location: new window.kakao.maps.LatLng(
                     position.lat,
                     position.long
                   ),
-                  radius: 100,
+                  radius: 200,
                   sort: window.kakao.maps.services.SortBy.DISTANCE,
                 }
               );
@@ -68,7 +78,8 @@ export default function CardList() {
 
       Promise.all(searchPromises).then((results) => {
         const valid = results.filter(
-          (p): p is kakao.maps.services.PlacesSearchResultItem => p !== null
+          (item): item is kakao.maps.services.PlacesSearchResultItem =>
+            item !== null
         );
 
         if (valid.length === 0) {
@@ -80,11 +91,19 @@ export default function CardList() {
         setNearestPlace(valid[0]);
       });
     });
-  }, [position.lat, position.long]);
+  }, [searchPlace, position.lat, position.long]);
 
+  /**
+   * 🔥 nearestPlace가 바뀌면 카드 목록 다시 로딩 + 인덱스 초기화
+   */
   useEffect(() => {
+    setCurrentIndex(0); // 🔥 버튼 누를 때 axios 다시 요청되는 문제 해결
+
     const loadCards = async () => {
-      if (!nearestPlace?.category_group_code) return;
+      if (!nearestPlace?.category_group_code) {
+        setCards([]);
+        return;
+      }
 
       try {
         const res = await axios.get(
@@ -97,7 +116,7 @@ export default function CardList() {
             },
           }
         );
-        console.log("res", res);
+
         setCards(res.data);
       } catch (err) {
         console.error("카드 정보 불러오기 오류:", err);
@@ -106,7 +125,6 @@ export default function CardList() {
 
     loadCards();
   }, [nearestPlace]);
-
   return (
     <div className="w-full h-full flex flex-col items-center">
       {nearestPlace ? (

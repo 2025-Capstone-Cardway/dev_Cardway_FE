@@ -1,9 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { TouchEvent } from "react";
 import StoreList from "./StoreList";
 import CardList from "./CardList";
 
-export default function Modal() {
+export interface SearchPlaceProps {
+  searchPlace: kakao.maps.services.PlacesSearchResultItem | null;
+}
+
+export default function Modal({ searchPlace }: SearchPlaceProps) {
+  console.log("p", searchPlace);
   const [height, setHeight] = useState<number>(40);
   const [isSliding, setIsSliding] = useState<boolean>(false);
   const startY = useRef<number | null>(null);
@@ -41,6 +46,11 @@ export default function Modal() {
     }
   };
 
+  useEffect(() => {
+    if (searchPlace != null) {
+      setMode(2);
+    }
+  }, [searchPlace]);
   return (
     <div
       className="absolute w-full bottom-0 left-0 z-30 flex flex-col items-center 
@@ -90,7 +100,7 @@ export default function Modal() {
 
       {mode === 2 && (
         <div className="w-full h-full mb-24 overflow-hidden">
-          <CardList />
+          <CardList searchPlace={searchPlace} />
         </div>
       )}
     </div>
