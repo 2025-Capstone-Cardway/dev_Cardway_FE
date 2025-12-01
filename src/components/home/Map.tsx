@@ -15,11 +15,13 @@ export default function Map() {
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const markerRef = useRef<kakao.maps.Marker | null>(null);
   const { setPosition } = usePositionStore();
-
+  const [searchPlace, setSearchPlace] =
+    useState<kakao.maps.services.PlacesSearchResultItem | null>(null);
   const [searchWord, setSearchWord] = useState<string>("");
   const [searchResults, setSearchResults] =
     useState<kakao.maps.services.PlacesSearchResult>([]);
   const [isSelected, setIsSelected] = useState<boolean>(false);
+  console.log("search", isSelected);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {
@@ -56,7 +58,7 @@ export default function Map() {
 
             markerRef.current = newMarker;
             map.panTo(latlng);
-
+            setSearchPlace(null);
             setPosition(latlng.getLat(), latlng.getLng());
           }
         );
@@ -92,10 +94,9 @@ export default function Map() {
   ) => {
     const map = mapRef.current;
     if (!map) return;
-
+    setSearchPlace(place);
     setSearchResults([]);
     setSearchWord("");
-
     const pos = new window.kakao.maps.LatLng(Number(place.y), Number(place.x));
     markerRef.current?.setMap(null);
 
@@ -116,7 +117,7 @@ export default function Map() {
       (pos) => {
         const { latitude, longitude } = pos.coords;
         const newLatLng = new window.kakao.maps.LatLng(latitude, longitude);
-
+        setSearchPlace(null);
         markerRef.current?.setMap(null);
 
         markerRef.current = new window.kakao.maps.Marker({
@@ -154,7 +155,7 @@ export default function Map() {
         </div>
       </div>
 
-      <Modal />
+      <Modal searchPlace={searchPlace} />
 
       {searchResults.length > 0 && !isSelected && (
         <div className="absolute top-20 w-full flex justify-center">

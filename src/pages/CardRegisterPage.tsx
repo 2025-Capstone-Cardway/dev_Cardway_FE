@@ -10,6 +10,7 @@ import woori from "../assets/brand/woori.svg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import BackIcon from "../components/common/BackIcon";
 interface BrandItem {
   img: string;
   name: string;
@@ -111,33 +112,40 @@ export default function CardRegisterPage() {
   };
 
   return (
-    <div className="w-full px-10 py-25 flex flex-col items-center">
-      <h1 className="text-2xl pb-10 text-text-main">
-        불러올 카드사를 선택하세요
-      </h1>
+    <div className="w-full px-10 py-10">
+      <BackIcon />
+      <div className="py-15 flex flex-col items-center">
+        <h1 className="text-2xl pb-10 text-text-main">
+          불러올 카드사를 선택하세요
+        </h1>
 
-      <div className="w-full grid grid-cols-3 justify-items-center gap-5">
-        {brandList.map((b) => (
-          <div
-            key={b.code}
-            onClick={() => {
-              setCard({ img: b.img, name: b.name, code: b.code, url: b.url });
-            }}
-            className={`w-25 h-25 shadow rounded-2xl bg-gray-50 flex flex-col items-center justify-center gap-2 cursor-pointer
+        <div className="w-full grid grid-cols-3 justify-items-center gap-5">
+          {brandList.map((b) => (
+            <div
+              key={b.code}
+              onClick={() => {
+                setCard({ img: b.img, name: b.name, code: b.code, url: b.url });
+              }}
+              className={`w-25 h-25 shadow rounded-2xl bg-gray-50 flex flex-col items-center justify-center gap-2 cursor-pointer
               ${card.code === b.code ? "border border-orange-main" : ""}`}
-          >
-            <img src={b.img} alt={b.name} className="w-10 h-10 rounded-full" />
-            <div className="text-text-main text-sm">{b.name}</div>
-          </div>
-        ))}
-      </div>
+            >
+              <img
+                src={b.img}
+                alt={b.name}
+                className="w-10 h-10 rounded-full"
+              />
+              <div className="text-text-main text-sm">{b.name}</div>
+            </div>
+          ))}
+        </div>
 
-      <button
-        onClick={submit}
-        className="w-full border border-border-main text-xl rounded-3xl mt-10 text-text-main h-12 shadow cursor-pointer"
-      >
-        등록하기
-      </button>
+        <button
+          onClick={submit}
+          className="w-full border border-border-main text-xl rounded-3xl mt-10 text-text-main h-12 shadow cursor-pointer"
+        >
+          등록하기
+        </button>
+      </div>
     </div>
   );
 }
