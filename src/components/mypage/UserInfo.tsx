@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/auth';
+import defaultProfile from '../../assets/user/default_profile.png';
 
 export default function UserInfo() {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export default function UserInfo() {
             className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
             onError={(e) => {
               // 이미지 로드 실패 시 기본 이미지 표시
-              e.currentTarget.src = "../../assets/user/default_profile.png";
+              e.currentTarget.src = defaultProfile;
             }}
           />
         </div>

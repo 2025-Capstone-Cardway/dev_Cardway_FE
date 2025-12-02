@@ -33,7 +33,7 @@ const AuthInitializer = () => {
             // 401 Unauthorized 또는 403 Forbidden인 경우 토큰 제거
             if (error.response?.status === 401 || error.response?.status === 403) {
               localStorage.removeItem("accessToken");
-              initializeAuth(token, undefined);
+              //initializeAuth(token, undefined);
             } else {
               // 네트워크 에러 등 다른 에러는 토큰 유지하고 초기화만 완료
               initializeAuth(token, undefined);
