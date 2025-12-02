@@ -3,7 +3,7 @@ import kakao_login from "../../assets/login/kakao_login.png";
 
 const KakaoLoginButton = () => {
     const handleLogin = () => {
-        window.location.href = "https://streaky-ned-noncontrollablely.ngrok-free.dev/oauth2/authorization/kakao";
+        window.location.href = "http://localhost:8080/oauth2/authorization/kakao";
     };
     return (
         <button onClick={handleLogin} className="flex items-center justify-center h-12 rounded-lg bg-[#FEE500] hover:bg-[#FDD835] transition">
