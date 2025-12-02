@@ -1,28 +1,25 @@
-import { useState } from 'react';
-
-// API 응답 타입 정의
-interface UserProfile {
-  userId: number;
-  provider: 'kakao' | 'naver';
-  nickname: string;
-  profileImage: string;
-}
-
-// Mock 데이터 - 나중에 API로 교체
-const mockUserProfile: UserProfile = {
-  userId: 1,
-  provider: 'kakao',
-  nickname: 'User1',
-  profileImage: ''
-};
+import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../../store/auth';
 
 export default function UserInfo() {
-  const [userProfile] = useState<UserProfile>(mockUserProfile);
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
 
   const handleLogout = () => {
-    // 로그아웃 로직 추가
-    console.log('로그아웃');
+    logout();
+    navigate('/login');
   };
+
+  // 로딩 중이거나 사용자 정보가 없는 경우
+  if (!user) {
+    return (
+      <div className="w-full px-8 pt-16 pb-6 bg-white">
+        <div className="flex items-center justify-center">
+          <p className="text-gray-500">사용자 정보를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full px-8 pt-16 pb-6 bg-white">
@@ -30,19 +27,23 @@ export default function UserInfo() {
         {/* 프로필 이미지 */}
         <div className="shrink-0">
           <img 
-            src={userProfile.profileImage} 
-            alt={userProfile.nickname}
+            src={user.profileImageUrl} 
+            alt={user.nickname}
             className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+            onError={(e) => {
+              // 이미지 로드 실패 시 기본 이미지 표시
+              e.currentTarget.src = "../../assets/user/default_profile.png";
+            }}
           />
         </div>
         
         {/* 사용자 정보 */}
         <div className="flex-1">
           <h2 className="text-lg font-bold text-text-main">
-            {userProfile.nickname}
+            {user.nickname}
           </h2>
           <p className="text-sm text-gray-500 mt-1">
-            {userProfile.provider === 'kakao' ? '카카오' : '네이버'} 로그인
+            {user.provider === 'kakao' ? '카카오' : '네이버'} 로그인
           </p>
         </div>
         
