@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 
 const KakaoLoginButton = () => {
     const handleLogin = () => {
-        window.location.href = "http://localhost:8080/oauth2/authorization/kakao";
+        const baseUrl = import.meta.env.VITE_API_BASE_URL;
+        window.location.href = `${baseUrl}/oauth2/authorization/kakao`;
     };
     
     return (
