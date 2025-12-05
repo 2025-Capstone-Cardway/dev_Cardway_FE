@@ -2,15 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+
+    <link rel="manifest" href="/manifest.json" />
+
     <meta
       name="viewport"
       content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
+    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <!-- iOS PWA 필수 아이콘 -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon-152x152.png" />
+
     <title>cardway</title>
   </head>
   <body>
     <div id="root"></div>
+
     <script type="module" src="/src/main.tsx"></script>
     <script
       type="text/javascript"
