@@ -28,9 +28,12 @@ export default function StoreList() {
           `/api/auth/partners?x=${position.long}&y=${position.lat}`
         );
 
-        setStores(res.data);
+        // 백엔드가 List를 직접 반환하므로 res.data가 배열
+        const storeData = Array.isArray(res.data) ? res.data : [];
+        setStores(storeData);
       } catch (err) {
         console.error("Error fetching card benefits:", err);
+        setStores([]); // 에러 시 빈 배열로 설정
       } finally {
         setLoading(false);
       }

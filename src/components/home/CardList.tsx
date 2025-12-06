@@ -110,9 +110,12 @@ export default function CardList({ searchPlace }: SearchPlaceProps) {
           `/api/auth/partners/${nearestPlace.category_group_code}`
         );
 
-        setCards(res.data);
+        // 백엔드가 List를 직접 반환하므로 res.data가 배열
+        const cardData = Array.isArray(res.data) ? res.data : [];
+        setCards(cardData);
       } catch (err) {
         console.error("카드 정보 불러오기 오류:", err);
+        setCards([]); // 에러 시 빈 배열로 설정
       }
     };
 

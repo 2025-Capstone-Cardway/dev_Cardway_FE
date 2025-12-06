@@ -4,6 +4,7 @@ import type{Card } from './types/Card';
 import CardView from './Card';
 import AddCardButton from './AddCardButton';
 import { getMyCards } from '../../api/card';
+import Loading from '../common/Loading';
 
 export default function CardList(){
     const [cards, setCards] = useState<Card[]>([]);
@@ -46,11 +47,9 @@ export default function CardList(){
         return (
             <div className="w-full px-4 max-w-[480px] mx-auto space-y-3">
                 <AddCardButton />
-                <div className="flex items-center justify-center py-20">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                        <p className="text-gray-500">카드를 불러오는 중...</p>
-                    </div>
+                <div className="flex flex-col items-center justify-center py-20">
+                    <Loading />
+                    <p className="text-gray-500 mt-4">카드를 불러오는 중...</p>
                 </div>
             </div>
         );

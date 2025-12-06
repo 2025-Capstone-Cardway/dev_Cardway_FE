@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import type { Card } from '../mycard/types/Card';
-import basicCardImage from '../../assets/card/basiccard.png';
 import useCardNavigation from '../../hooks/useCardNavigation';
 import { getMyCards } from '../../api/card';
+import Loading from '../common/Loading';
 
 export default function MyWallet() {
     const [cards, setCards] = useState<Card[]>([]);
@@ -37,9 +37,9 @@ export default function MyWallet() {
         {/* 카드 리스트 (가로 스크롤)*/}
         <div className="px-8">
             {loading ? (
-                <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    <p className="ml-3 text-gray-500">카드를 불러오는 중...</p>
+                <div className="flex flex-col items-center justify-center py-8">
+                    <Loading />
+                    <p className="mt-4 text-gray-500">카드를 불러오는 중...</p>
                 </div>
             ) : cards.length === 0 ? (
                 <div className="flex items-center justify-center py-8">

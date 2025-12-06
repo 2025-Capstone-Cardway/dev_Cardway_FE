@@ -18,20 +18,20 @@ interface BaseResponse<T> {
   data: T;
 }
 
-// API 명세 형태의 응답
-interface CardsApiResponse {
-  success: boolean;
-  total: number;
-  cards: Array<{
-    id: number;
-    name: string;
-    benefit?: {
-      category: string;
-    };
-    company?: string;
-    last4_digit?: string;
-  }>;
-}
+// API 명세 형태의 응답 (현재 사용하지 않음, 참고용)
+// interface CardsApiResponse {
+//   success: boolean;
+//   total: number;
+//   cards: Array<{
+//     id: number;
+//     name: string;
+//     benefit?: {
+//       category: string;
+//     };
+//     company?: string;
+//     last4_digit?: string;
+//   }>;
+// }
 
 /**
  * 내 카드 목록 조회 API
@@ -54,6 +54,7 @@ export const getMyCards = async (): Promise<Card[]> => {
       id: index + 1, // 백엔드에서 id를 제공하지 않으므로 임시로 인덱스 사용
       name: card.cardName,
       company: card.company,
+      last4_digit: card.lastFourDigits || '', // 카드번호 끝 4자리 추가
       isMainCard: index === 0, // 첫 번째 카드를 대표 카드로 설정 (백엔드에서 isMain 정보 제공 시 수정 필요)
       benefit: card.partners && card.partners.length > 0 ? [{
         category: card.partners[0] || '', // 첫 번째 파트너를 카테고리로 사용
