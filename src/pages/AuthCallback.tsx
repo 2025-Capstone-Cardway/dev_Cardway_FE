@@ -13,7 +13,7 @@ const AuthCallback = () => {
     const handleCallback = async () => {
       const searchParams = new URLSearchParams(location.search);
       const token = searchParams.get("token"); // 백엔드에서 전달한 JWT 토큰
-      const code = searchParams.get("code"); // OAuth provider code (API 명세 방식)
+      const code = searchParams.get("code"); 
       const error = searchParams.get("error");
 
       // OAuth 에러 처리
@@ -26,14 +26,11 @@ const AuthCallback = () => {
       // JWT 토큰에서 사용자 ID 추출 유틸리티
       const decodeJwtToken = (token: string): { userId: string | null } => {
         try {
-          // JWT는 header.payload.signature 형식
           const payload = token.split('.')[1];
           if (!payload) return { userId: null };
           
-          // Base64 디코딩
           const decodedPayload = JSON.parse(atob(payload));
           
-          // 백엔드에서 sub 필드에 userId 저장 (JwtTokenProvider 참고)
           return { userId: decodedPayload.sub || null };
         } catch (error) {
           console.error("JWT 토큰 디코딩 실패:", error);
@@ -41,7 +38,6 @@ const AuthCallback = () => {
         }
       };
 
-      // 백엔드가 token을 직접 전달하는 경우 (현재 구현 방식)
       if (token) {
         try {
           // JWT 토큰에서 사용자 ID 추출
@@ -50,15 +46,11 @@ const AuthCallback = () => {
           // 토큰 저장
           localStorage.setItem("accessToken", token);
           
-          // 회원정보조회 API 호출 (백엔드가 구현되면 사용)
           try {
             const profileResponse = await apiClient.get("/api/auth/profile");
             
-            // API 응답 구조에 따라 파싱
-            // BaseResponse로 래핑되어 있을 수도 있고, 직접 응답일 수도 있음
             const profileData = profileResponse.data?.data || profileResponse.data;
             
-            // API 명세: { userId, provider, nickname, profileImage } 또는 { nickname, profileImageUrl }
             const userData = {
               id: userId || profileData.userId?.toString() || "",
               nickname: profileData.nickname || "",
@@ -78,7 +70,7 @@ const AuthCallback = () => {
               provider
             );
           } catch (profileError) {
-            // 회원정보조회 API가 아직 구현되지 않았거나 에러 발생
+            // 회원정보조회 api.. 
             console.warn("회원정보조회 실패:", profileError);
             
             // 토큰만 저장하고 기본값으로 초기화
@@ -101,10 +93,8 @@ const AuthCallback = () => {
         return;
       }
 
-      // API 명세 방식: code를 받아서 백엔드 API 호출
       if (code) {
         try {
-          // API 명세에 따라 /api/login/callback 호출
           const response = await axios.post(
             `${import.meta.env.VITE_API_BASE_URL}/api/login/callback?code=${code}`,
             {},
@@ -119,7 +109,6 @@ const AuthCallback = () => {
 
           // 성공 응답 검증
           if (status === "success" && accessToken && refreshToken && user) {
-            // API 응답의 user 객체를 우리 인터페이스에 맞게 변환
             const userData = {
               id: user.id,
               nickname: user.nickname,
@@ -167,7 +156,6 @@ const AuthCallback = () => {
         return;
       }
 
-      // token도 code도 없으면 로그인 실패
       console.error("Login Fail: OAuth token 또는 code가 URL에 없습니다");
       console.log("현재 URL:", location.search);
       navigate("/login", { replace: true });
