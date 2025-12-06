@@ -1,5 +1,5 @@
 import StoreCard from "./StoreCard";
-import axios from "axios";
+import apiClient from "../../api/axios";
 import { useEffect, useState } from "react";
 import usePositionStore from "../../store/position";
 import Loading from "../common/Loading";
@@ -24,15 +24,8 @@ export default function StoreList() {
 
     const fetchBenefits = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/auth/partners?x=${
-            position.long
-          }&y=${position.lat}`,
-          {
-            headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_TEMP_TOKEN}`,
-            },
-          }
+        const res = await apiClient.get(
+          `/api/auth/partners?x=${position.long}&y=${position.lat}`
         );
 
         setStores(res.data);
