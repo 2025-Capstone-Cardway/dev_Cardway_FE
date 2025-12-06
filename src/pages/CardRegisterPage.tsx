@@ -9,7 +9,7 @@ import shinhan from "../assets/brand/shinhan.svg";
 import woori from "../assets/brand/woori.svg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../api/axios";
 import BackIcon from "../components/common/BackIcon";
 interface BrandItem {
   img: string;
@@ -85,9 +85,6 @@ export default function CardRegisterPage() {
 
   const navigate = useNavigate();
 
-  const token: string = import.meta.env.VITE_TEMP_TOKEN as string;
-  const baseURL: string = import.meta.env.VITE_API_BASE_URL as string;
-
   const submit = async (): Promise<void> => {
     if (!card) {
       alert("카드를 선택하세요");
@@ -95,13 +92,8 @@ export default function CardRegisterPage() {
     }
 
     try {
-      const res = await axios.get<{ data: boolean }>(
-        `${baseURL}/api/codef/check-connected?cardCompanyCode=${card.code}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const res = await apiClient.get<{ data: boolean }>(
+        `/api/codef/check-connected?cardCompanyCode=${card.code}`
       );
       navigate("/card/register/info", {
         state: { card, connected: res.data.data },

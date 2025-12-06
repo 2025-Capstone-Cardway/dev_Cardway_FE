@@ -4,7 +4,7 @@ import defaultProfile from '../../assets/user/default_profile.png';
 
 export default function UserInfo() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user, provider, logout } = useAuthStore();
 
   const handleLogout = () => {
     logout();
@@ -28,7 +28,7 @@ export default function UserInfo() {
         {/* 프로필 이미지 */}
         <div className="shrink-0">
           <img 
-            src={user.profileImageUrl} 
+            src={user.profileImageUrl || defaultProfile} 
             alt={user.nickname}
             className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
             onError={(e) => {
@@ -43,9 +43,11 @@ export default function UserInfo() {
           <h2 className="text-lg font-bold text-text-main">
             {user.nickname}
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            {user.provider === 'kakao' ? '카카오' : '네이버'} 로그인
-          </p>
+          {provider && (
+            <p className="text-sm text-gray-500 mt-1">
+              {provider === 'kakao' ? '카카오' : '네이버'} 로그인
+            </p>
+          )}
         </div>
         
         {/* 로그아웃 버튼 */}

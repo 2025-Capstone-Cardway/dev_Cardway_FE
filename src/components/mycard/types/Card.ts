@@ -14,5 +14,6 @@ export interface Card{
     type?: string,
     benefit?: Benefit[],
     company?: string,
+    last4_digit?: string;  // 카드번호 끝 4자리
     image?: string;
 }

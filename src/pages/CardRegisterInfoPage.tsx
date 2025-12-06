@@ -1,7 +1,7 @@
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import BackIcon from "../components/common/BackIcon";
 import { useState } from "react";
-import axios from "axios";
+import apiClient from "../api/axios";
 import Loading from "../components/common/Loading";
 
 export default function CardRegisterInfoPage() {
@@ -11,9 +11,7 @@ export default function CardRegisterInfoPage() {
   const [pw, setPw] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
-  // 토큰 수정
-  const token: string = import.meta.env.VITE_TEMP_TOKEN;
-  // 토큰 수정
+
   const handleSubmit = async () => {
     if (!id) {
       alert("ID를 입력하세요");
@@ -29,24 +27,18 @@ export default function CardRegisterInfoPage() {
     try {
       // 1) 새 카드사라면 connect 수행
       if (!connected) {
-        const connectRes = await axios.post(
-          `${
-            import.meta.env.VITE_API_BASE_URL
-          }/api/codef/connect?cardCompanyCode=${code}`,
-          { loginId: id, loginPw: pw },
-          { headers: { Authorization: `Bearer ${token}` } }
+        const connectRes = await apiClient.post(
+          `/api/codef/connect?cardCompanyCode=${code}`,
+          { loginId: id, loginPw: pw }
         );
 
         console.log("connectRes", connectRes);
       }
 
       // 2) 연결 여부와 상관 없이 카드 동기화 실행
-      const syncRes = await axios.post(
-        `${
-          import.meta.env.VITE_API_BASE_URL
-        }/api/codef/sync-cards?cardCompanyCode=${code}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+      const syncRes = await apiClient.post(
+        `/api/codef/sync-cards?cardCompanyCode=${code}`,
+        {}
       );
 
       console.log("syncRes", syncRes);

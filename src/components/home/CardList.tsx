@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import prevIcon from "../../assets/chevron_backward2.png";
 import postIcon from "../../assets/chevron_backward.png";
-import axios from "axios";
+import apiClient from "../../api/axios";
 import usePositionStore from "../../store/position";
 import CardCard from "./CardCard";
 import type { SearchPlaceProps } from "./Modal";
@@ -106,20 +106,16 @@ export default function CardList({ searchPlace }: SearchPlaceProps) {
       }
 
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/auth/partners/${
-            nearestPlace.category_group_code
-          }`,
-          {
-            headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_TEMP_TOKEN}`,
-            },
-          }
+        const res = await apiClient.get(
+          `/api/auth/partners/${nearestPlace.category_group_code}`
         );
 
-        setCards(res.data);
+        // 백엔드가 List를 직접 반환하므로 res.data가 배열
+        const cardData = Array.isArray(res.data) ? res.data : [];
+        setCards(cardData);
       } catch (err) {
         console.error("카드 정보 불러오기 오류:", err);
+        setCards([]); // 에러 시 빈 배열로 설정
       }
     };
 
