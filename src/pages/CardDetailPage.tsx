@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import type { Card } from '../components/mycard/types/Card';
+import type { CardDetail } from '../components/mycard/types/Card';
 import CardDetailHeader from '../components/carddetail/CardDetailHeader';
 import DeleteCardButton from '../components/carddetail/DeleteCardButton';
 import BenefitList from '../components/carddetail/BenefitList';
@@ -10,7 +10,7 @@ import { getCardDetail } from '../api/card';
 export default function CardDetailPage() {
     const { cardId } = useParams();
     const navigate = useNavigate();
-    const [card, setCard] = useState<Card | null>(null);
+    const [card, setCard] = useState<CardDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 

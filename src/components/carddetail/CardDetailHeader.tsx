@@ -1,7 +1,7 @@
-import type { Card } from '../mycard/types/Card';
+import type { CardDetail } from '../mycard/types/Card';
 
 interface CardDetailHeaderProps {
-    card: Card;
+    card: CardDetail;
 }
 
 export default function CardDetailHeader({ card }: CardDetailHeaderProps) {

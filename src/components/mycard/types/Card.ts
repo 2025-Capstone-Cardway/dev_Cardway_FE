@@ -18,3 +18,12 @@ export interface Card{
     last4_digit?: string;  // 카드번호 끝 4자리
     image?: string;
 }
+
+// 카드 상세 정보 타입 (카드 상세 조회 API 응답용)
+export interface CardDetail{
+    id: number,
+    name: string,
+    company: string,
+    image: string,
+    benefit?: Benefit[],
+}

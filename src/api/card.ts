@@ -1,31 +1,25 @@
 import apiClient from './axios';
-import type { Card } from '../components/mycard/types/Card';
+import type { Card, CardDetail } from '../components/mycard/types/Card';
 import basicCardImage from '../assets/card/basiccard.png';
 
 // 내 카드 목록 API 응답 타입 (api/cards/my)
-export interface MyCardsApiResponse {
-  success: boolean;
-  total: number;
-  cards: Array<{
-    id: number;
-    userCardId?: number;  // UserCard ID
-    name: string;
-    benefit?: {
-      category: string;
-    };
-    company?: string;
-    last4_digit?: string;
-    isMain?: boolean;
-  }>;
+export interface MyCardApiResponse {
+  cardId: number;
+  cardName: string;
+  company: string;
+  lastFourDigits: string;
+  partners: string[];
+  main: boolean;
 }
 
-// BaseResponse로 래핑된 응답 타입 (카드 상세 조회용)
+// BaseResponse로 래핑된 응답 타입
 interface BaseResponse<T> {
   code: string;
   status: number;
   message: string;
   data: T;
 }
+
 
 // 카드 상세 조회 API 응답 타입 (백엔드 CardDetailResponse)
 export interface CardDetailApiResponse {
@@ -38,6 +32,7 @@ export interface CardDetailApiResponse {
     benefitComment: string;
     partnerNames: string[];
   }>;
+  main: boolean;
 }
 
 /**
@@ -46,29 +41,29 @@ export interface CardDetailApiResponse {
  */
 export const getMyCards = async (): Promise<Card[]> => {
   try {
-    const response = await apiClient.get<MyCardsApiResponse>('/api/cards/my');
+    const response = await apiClient.get<BaseResponse<MyCardApiResponse[]>>('/api/cards/my');
     
-    // 응답 데이터에서 cards 배열 추출
-    const cardsData = response.data.cards || [];
+    // BaseResponse 구조에서 data 배열 추출
+    const cardsData = response.data.data || [];
     
     // 빈 배열인 경우 빈 배열 반환
     if (cardsData.length === 0) {
       return [];
     }
     
-    // 백엔드 응답을 프론트엔드 Card 타입으로 변환
+    // 백엔드 응답(MyCardApiResponse)을 프론트엔드 Card 타입으로 변환
     const cards: Card[] = cardsData.map((card, index) => ({
-      id: card.id, 
-      userCardId: card.userCardId, // UserCard ID (메인 카드 설정 시 필요)
-      name: card.name,
+      id: card.cardId,
+      userCardId: undefined, // UserCard ID는 별도로 조회 필요
+      name: card.cardName,
       company: card.company,
-      last4_digit: card.last4_digit || '',
-      isMainCard: card.isMain !== undefined ? card.isMain : (index === 0), // 백엔드에서 isMain 제공 시 사용, 없으면 첫 번째 카드를 메인으로
-      benefit: card.benefit?.category ? [{
-        category: card.benefit.category,
+      last4_digit: card.lastFourDigits || '',
+      isMainCard: card.main,
+      benefit: card.partners && card.partners.length > 0 ? [{
+        category: '',
         title: '',
         comment: '',
-        parterName: [],
+        parterName: card.partners,
       }] : undefined,
       image: basicCardImage, // 기본 카드 이미지 사용
     }));
@@ -129,7 +124,7 @@ export const getCardTransactions = async (
   endDate: string
 ): Promise<CardTransactionResponse[]> => {
   try {
-    const response = await apiClient.get<CardTransactionResponse[]>(
+    const response = await apiClient.get<CardTransactionResponse[] | BaseResponse<CardTransactionResponse[]>>(
       '/api/cards/transactions',
       {
         params: {
@@ -139,7 +134,18 @@ export const getCardTransactions = async (
       }
     );
 
-    return response.data;
+    // 응답이 배열인 경우 (직접 반환)
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    
+    // BaseResponse로 래핑되어 있는 경우
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      const baseResponse = response.data as BaseResponse<CardTransactionResponse[]>;
+      return baseResponse.data || [];
+    }
+
+    return [];
   } catch (error) {
     console.error('카드 승인 내역 조회 실패:', error);
     throw error;
@@ -151,7 +157,7 @@ export const getCardTransactions = async (
  * @param cardId - 조회할 카드의 ID
  * @returns 카드 상세 정보
  */
-export const getCardDetail = async (cardId: number): Promise<Card> => {
+export const getCardDetail = async (cardId: number): Promise<CardDetail> => {
   try {
     const response = await apiClient.get<BaseResponse<CardDetailApiResponse>>(
       `/api/cards/${cardId}`
@@ -160,8 +166,8 @@ export const getCardDetail = async (cardId: number): Promise<Card> => {
     // BaseResponse 구조에서 data 추출
     const cardData = response.data.data;
 
-    // 백엔드 응답을 프론트엔드 Card 타입으로 변환
-    const card: Card = {
+    // 백엔드 응답을 프론트엔드 CardDetail 타입으로 변환
+    const cardDetail: CardDetail = {
       id: cardId,
       name: cardData.cardName,
       company: cardData.cardCompany,
@@ -172,13 +178,9 @@ export const getCardDetail = async (cardId: number): Promise<Card> => {
         comment: b.benefitComment,
         parterName: b.partnerNames || [],
       })),
-      // type과 isMainCard는 상세 API에서 제공하지 않으므로 기본값 사용
-      type: undefined,
-      isMainCard: false,  //main 카드 여부 필요..
-      last4_digit: undefined,
     };
 
-    return card;
+    return cardDetail;
   } catch (error) {
     console.error('카드 상세 조회 실패:', error);
     throw error;
