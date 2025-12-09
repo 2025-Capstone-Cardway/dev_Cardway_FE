@@ -21,7 +21,6 @@ export default function Map() {
   const [searchResults, setSearchResults] =
     useState<kakao.maps.services.PlacesSearchResult>([]);
   const [isSelected, setIsSelected] = useState<boolean>(false);
-  console.log("search", isSelected);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {

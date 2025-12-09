@@ -1,10 +1,22 @@
 import type { CardInfo } from "./CardList";
 
+import { useState } from "react";
 interface CardInfoProps {
   card: CardInfo | null;
 }
 
 export default function CardCard({ card }: CardInfoProps) {
+  const [isLandscape, setIsLandscape] = useState(false);
+
+  const handleImageLoad = (e: React.UIEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    const { naturalWidth, naturalHeight } = img;
+    if (naturalWidth > naturalHeight) {
+      setIsLandscape(false);
+    } else {
+      setIsLandscape(true);
+    }
+  };
   console.log(card);
   if (!card)
     return (
@@ -15,9 +27,15 @@ export default function CardCard({ card }: CardInfoProps) {
 
   return (
     <div className="w-full h-full rounded-xl shadow-md border border-border-main bg-white overflow-hidden flex flex-row p-2 gap-3">
-      <div className="w-1/3 h-full bg-gray-100">
-        {card.imageUrl ? (
-          <img src={card.imageUrl} className="w-full h-full object-cover" />
+      <div className="w-1/3 h-full flex">
+        {card.cardImage ? (
+          <img
+            src={card.cardImage}
+            onLoad={handleImageLoad}
+            className={`items-center justify-center object-contain max-w-full min-h-full ${
+              isLandscape ? "" : "rotate-90"
+            }`}
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 ">
             카드 이미지

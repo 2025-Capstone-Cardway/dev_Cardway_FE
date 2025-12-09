@@ -16,7 +16,7 @@ export interface CardInfo {
   cardCompany: string;
   cardName: string;
   benefitComment: string;
-  imageUrl?: string;
+  cardImage?: string;
 }
 
 const CATEGORY_CODES = ["FD6", "CE7", "CS2", "MT1", "CT1", "OL7"] as const;
@@ -27,15 +27,12 @@ export default function CardList({ searchPlace }: SearchPlaceProps) {
   const [nearestPlace, setNearestPlace] =
     useState<kakao.maps.services.PlacesSearchResultItem | null>(null);
   const [cards, setCards] = useState<CardInfo[]>([]);
-  console.log("n", nearestPlace);
-  console.log("s", searchPlace);
   useEffect(() => {
     if (searchPlace) {
       setNearestPlace(searchPlace);
       return;
     }
 
-    // 🔥 현위치 기반 최근접 매장 탐색
     if (!position.lat || !position.long) return;
 
     window.kakao.maps.load(() => {
@@ -94,10 +91,10 @@ export default function CardList({ searchPlace }: SearchPlaceProps) {
   }, [searchPlace, position.lat, position.long]);
 
   /**
-   * 🔥 nearestPlace가 바뀌면 카드 목록 다시 로딩 + 인덱스 초기화
+   * nearestPlace가 바뀌면 카드 목록 다시 로딩 + 인덱스 초기화
    */
   useEffect(() => {
-    setCurrentIndex(0); // 🔥 버튼 누를 때 axios 다시 요청되는 문제 해결
+    setCurrentIndex(0); // 버튼 누를 때 axios 다시 요청되는 문제 해결
 
     const loadCards = async () => {
       if (!nearestPlace?.category_group_code) {
@@ -109,8 +106,8 @@ export default function CardList({ searchPlace }: SearchPlaceProps) {
         const res = await apiClient.get(
           `/api/auth/partners/${nearestPlace.category_group_code}`
         );
+        console.log("res", res);
 
-        // 백엔드가 List를 직접 반환하므로 res.data가 배열
         const cardData = Array.isArray(res.data) ? res.data : [];
         setCards(cardData);
       } catch (err) {

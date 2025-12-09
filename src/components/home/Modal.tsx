@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import apiClient from "../../api/axios";
 import type { TouchEvent } from "react";
 import StoreList from "./StoreList";
 import CardList from "./CardList";
@@ -8,12 +9,12 @@ export interface SearchPlaceProps {
 }
 
 export default function Modal({ searchPlace }: SearchPlaceProps) {
-  console.log("p", searchPlace);
   const [height, setHeight] = useState<number>(40);
   const [isSliding, setIsSliding] = useState<boolean>(false);
   const startY = useRef<number | null>(null);
   const startHeight = useRef<number>(40);
   const [mode, setMode] = useState<number>(1); // 1: 위치별, 2: 매장별
+  const [mainCard, setMainCard] = useState<string>("");
 
   const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
     if (mode !== 1) return;
@@ -21,6 +22,27 @@ export default function Modal({ searchPlace }: SearchPlaceProps) {
     startY.current = e.touches[0].clientY;
     startHeight.current = height;
   };
+
+  useEffect(() => {
+    const loadMaincard = async () => {
+      try {
+        const res = await apiClient.get(`api/cards/my`);
+        console.log("res", res);
+        const myCards = res.data.data;
+        console.log(myCards);
+        const mainCardInfo = myCards.find(
+          (card: { main: boolean }) => card.main === true
+        );
+        setMainCard(mainCardInfo.cardName);
+      } catch (err) {
+        console.error("카드 정보 불러오기 오류:", err);
+      }
+    };
+
+    if (mode == 1) {
+      loadMaincard();
+    }
+  }, [mode]);
 
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
     if (mode !== 1) return;
@@ -89,7 +111,7 @@ export default function Modal({ searchPlace }: SearchPlaceProps) {
         <>
           {" "}
           <div className="w-full flex flex-col items-start px-8">
-            <div className="text-orange-main font-bold">메인 카드</div>
+            <div className="text-orange-main font-bold">{mainCard}</div>
             <div className="text-gray-400">으로 혜택을 받을 수 있어요</div>
           </div>
           <div className="w-full h-full overflow-y-auto px-5 mb-24">

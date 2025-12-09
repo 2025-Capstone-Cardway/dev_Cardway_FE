@@ -72,7 +72,7 @@ export default function CardRegisterInfoPage() {
           <span>회원 정보를 입력해주세요</span>
           <Link to={url}>
             {" "}
-            <span className="text-gray-300 font-light text-sm">
+            <span className="text-gray-500 font-light text-sm">
               * 카드사 회원정보 확인하러 가기
             </span>
           </Link>
