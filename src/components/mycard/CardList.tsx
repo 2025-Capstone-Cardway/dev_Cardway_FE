@@ -1,46 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import type{Card, Benefit } from './types/Card';
+import type{Card } from './types/Card';
 import CardView from './Card';
 import AddCardButton from './AddCardButton';
-import basicCardImage from '../../assets/card/basiccard.png'
-
-const mockBenefits: Benefit[] = [
-    { category: "문화", title: "모든가맹점", comment: "구체적인 혜택", parterName: []},
-    { category: "영화관", title: "모든가맹점", comment: "월 1회 제공", parterName: []}
-];
-
-const initialMockCards: Card[] = [
-    {
-        id: 1,
-        name: "국민 노리 카드",
-        type: "체크카드",
-        company: "KB국민",
-        image: basicCardImage, 
-        benefit: mockBenefits, 
-        isMainCard: true
-    },
-    {
-        id: 2,
-        name: "신한 마이 베네핏",
-        type: "신용카드",
-        company: "신한카드",
-        image: basicCardImage,
-        benefit: [
-            {
-                category: "서점",
-                title: "모든가맹점 할인",
-                comment: "일 1회, 월 4회",
-                parterName: ["교보문고"]
-            }
-        ],
-        isMainCard: false
-    }
-]
-
+import { getMyCards } from '../../api/card';
+import Loading from '../common/Loading';
 
 export default function CardList(){
-    const [cards, setCards] = useState<Card[]>(initialMockCards);
+    const [cards, setCards] = useState<Card[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        const fetchCards = async () => {
+            try {
+                setLoading(true);
+                const fetchedCards = await getMyCards();
+                setCards(fetchedCards);
+            } catch (error) {
+                console.error('카드 목록 조회 실패:', error);
+                // 에러 발생 시 빈 배열 유지
+                setCards([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCards();
+    }, []);
 
     const handleToggleMainCard = (cardId: number) => {
         setCards(prevCards => 
@@ -57,10 +43,27 @@ export default function CardList(){
         return 0;
     });
 
+    if (loading) {
+        return (
+            <div className="w-full px-4 max-w-[480px] mx-auto space-y-3">
+                <AddCardButton />
+                <div className="flex flex-col items-center justify-center py-20">
+                    <Loading />
+                    <p className="text-gray-500 mt-4">카드를 불러오는 중...</p>
+                </div>
+            </div>
+        );
+    }
+
     return(
         <div className="w-full px-4 max-w-[480px] mx-auto space-y-3">
             <AddCardButton />
-            {sortedCards.map((card, index) => (
+            {sortedCards.length === 0 ? (
+                <div className="flex items-center justify-center py-20">
+                    <p className="text-gray-500">등록된 카드가 없습니다.</p>
+                </div>
+            ) : (
+                sortedCards.map((card, index) => (
                 <motion.div
                     key={card.id}
                     layout
@@ -85,7 +88,8 @@ export default function CardList(){
                         onToggleMainCard={handleToggleMainCard}
                     />
                 </motion.div>
-            ))}
+                ))
+            )}
         </div>
     );
 }

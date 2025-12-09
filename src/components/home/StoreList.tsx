@@ -1,5 +1,5 @@
 import StoreCard from "./StoreCard";
-import axios from "axios";
+import apiClient from "../../api/axios";
 import { useEffect, useState } from "react";
 import usePositionStore from "../../store/position";
 import Loading from "../common/Loading";
@@ -24,20 +24,16 @@ export default function StoreList() {
 
     const fetchBenefits = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/auth/partners?x=${
-            position.long
-          }&y=${position.lat}`,
-          {
-            headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_TEMP_TOKEN}`,
-            },
-          }
+        const res = await apiClient.get(
+          `/api/auth/partners?x=${position.long}&y=${position.lat}`
         );
 
-        setStores(res.data);
+        // 백엔드가 List를 직접 반환하므로 res.data가 배열
+        const storeData = Array.isArray(res.data) ? res.data : [];
+        setStores(storeData);
       } catch (err) {
         console.error("Error fetching card benefits:", err);
+        setStores([]); // 에러 시 빈 배열로 설정
       } finally {
         setLoading(false);
       }
