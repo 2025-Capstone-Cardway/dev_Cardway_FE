@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import type{Card } from './types/Card';
 import CardView from './Card';
 import AddCardButton from './AddCardButton';
-import { getMyCards } from '../../api/card';
+import { getMyCards, setMainCard } from '../../api/card';
 import Loading from '../common/Loading';
 
 export default function CardList(){
@@ -28,13 +28,29 @@ export default function CardList(){
         fetchCards();
     }, []);
 
-    const handleToggleMainCard = (cardId: number) => {
-        setCards(prevCards => 
-            prevCards.map(card => ({
-                ...card,
-                isMainCard: card.id === cardId
-            }))
-        );
+    const handleToggleMainCard = async (selectedCard: Card) => {
+        // userCardId가 없으면 API 호출 불가
+        if (!selectedCard.userCardId) {
+            console.error('userCardId가 없습니다. 백엔드에서 userCardId를 제공해야 합니다.');
+            return;
+        }
+
+        try {
+            // 메인 카드 설정 API 호출
+            await setMainCard(selectedCard.userCardId, true);
+            
+            // 성공 시 로컬 상태 업데이트
+            setCards(prevCards => 
+                prevCards.map(card => ({
+                    ...card,
+                    isMainCard: card.id === selectedCard.id
+                }))
+            );
+        } catch (error) {
+            console.error('메인 카드 설정 실패:', error);
+            // 에러 발생 시 사용자에게 알림 (선택사항)
+            alert('메인 카드 설정에 실패했습니다. 다시 시도해주세요.');
+        }
     };
 
     const sortedCards = [...cards].sort((a, b) => {
