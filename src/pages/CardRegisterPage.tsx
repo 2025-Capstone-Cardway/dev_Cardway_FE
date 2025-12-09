@@ -86,7 +86,7 @@ export default function CardRegisterPage() {
   const navigate = useNavigate();
 
   const submit = async (): Promise<void> => {
-    if (!card) {
+    if (card.name == "") {
       alert("카드를 선택하세요");
       return;
     }
