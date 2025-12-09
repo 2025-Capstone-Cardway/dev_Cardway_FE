@@ -3,7 +3,7 @@ import useCardNavigation from '../../hooks/useCardNavigation';
 
 interface CardProps {
   card: Card;
-  onToggleMainCard?: (cardId: number) => void;
+  onToggleMainCard?: (card: Card) => void;
 }
 
 
@@ -77,7 +77,7 @@ export default function CardView({ card, onToggleMainCard }: CardProps) {
           className="absolute top-[15px] right-[15px] w-[20px] h-[20px] cursor-pointer hover:opacity-80 transition-opacity"
           onClick={(e) => {
             e.stopPropagation();
-            onToggleMainCard?.(id);
+            onToggleMainCard?.(card);
           }}
           aria-label="메인카드로 설정"
         >

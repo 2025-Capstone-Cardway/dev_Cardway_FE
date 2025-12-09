@@ -8,12 +8,14 @@ export interface MyCardsApiResponse {
   total: number;
   cards: Array<{
     id: number;
+    userCardId?: number;  // UserCard ID
     name: string;
     benefit?: {
       category: string;
     };
     company?: string;
     last4_digit?: string;
+    isMain?: boolean;
   }>;
 }
 
@@ -57,10 +59,11 @@ export const getMyCards = async (): Promise<Card[]> => {
     // 백엔드 응답을 프론트엔드 Card 타입으로 변환
     const cards: Card[] = cardsData.map((card, index) => ({
       id: card.id, 
+      userCardId: card.userCardId, // UserCard ID (메인 카드 설정 시 필요)
       name: card.name,
       company: card.company,
       last4_digit: card.last4_digit || '',
-      isMainCard: index === 0, // 첫 번째 카드를 대표 카드로 설정 (백엔드에서 isMain 정보 제공 시 수정 필요)
+      isMainCard: card.isMain !== undefined ? card.isMain : (index === 0), // 백엔드에서 isMain 제공 시 사용, 없으면 첫 번째 카드를 메인으로
       benefit: card.benefit?.category ? [{
         category: card.benefit.category,
         title: '',
@@ -73,6 +76,35 @@ export const getMyCards = async (): Promise<Card[]> => {
     return cards;
   } catch (error) {
     console.error('내 카드 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 메인 카드 설정 API 응답 타입
+export interface SetMainCardApiResponse {
+  status: string;
+  userId: number;
+  cardId: number;
+  isMain: boolean;
+  updatedAt: string;
+}
+
+/**
+ * 메인 카드 설정 API
+ * @param userCardId - UserCard의 ID
+ * @param isMain - 메인 카드 설정 여부 (true: 메인으로 등록, false: 메인 취소)
+ * @returns 설정 결과
+ */
+export const setMainCard = async (userCardId: number, isMain: boolean = true): Promise<SetMainCardApiResponse> => {
+  try {
+    const response = await apiClient.patch<SetMainCardApiResponse>(
+      `/api/cards/main/${userCardId}`,
+      { isMain }
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('메인 카드 설정 실패:', error);
     throw error;
   }
 };

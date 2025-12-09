@@ -8,6 +8,7 @@ export interface Benefit{
 
 export interface Card{
     id: number,
+    userCardId?: number,  // UserCard ID (메인 카드 설정 시 필요)
     name: string,
     isMainCard: boolean;  //
     
