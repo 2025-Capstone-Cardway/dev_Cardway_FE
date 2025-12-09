@@ -109,6 +109,43 @@ export const setMainCard = async (userCardId: number, isMain: boolean = true): P
   }
 };
 
+// 카드 승인 내역 응답 타입
+export interface CardTransactionResponse {
+  transactionId: number;
+  approvedAt: string;
+  amount: string;
+  storeName: string;
+  storeType: string;
+}
+
+/**
+ * 카드 승인 내역 조회 API
+ * @param startDate - 조회 시작일 (yyyy-MM-dd)
+ * @param endDate - 조회 종료일 (yyyy-MM-dd)
+ * @returns 승인 내역 목록
+ */
+export const getCardTransactions = async (
+  startDate: string,
+  endDate: string
+): Promise<CardTransactionResponse[]> => {
+  try {
+    const response = await apiClient.get<CardTransactionResponse[]>(
+      '/api/cards/transactions',
+      {
+        params: {
+          startDate,
+          endDate,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('카드 승인 내역 조회 실패:', error);
+    throw error;
+  }
+};
+
 /**
  * 카드 상세 정보 조회 API
  * @param cardId - 조회할 카드의 ID

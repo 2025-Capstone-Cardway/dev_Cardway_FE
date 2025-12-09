@@ -1,18 +1,12 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import type { ApexOptions } from "apexcharts";
 import ReactApexChart from "react-apexcharts";
+import { getCardTransactions } from "../../api/card";
+import type { CardTransactionResponse } from "../../api/card";
 
 interface DateRange {
   start: string;
   end: string;
-}
-
-interface Transaction {
-  transactionId: number;
-  approvedAt: string;
-  amount: string | number;
-  storeName: string;
-  storeType: string;
 }
 
 const CHART_COLORS = [
@@ -21,37 +15,6 @@ const CHART_COLORS = [
   "#854b2c",
   "#4b2e38",
   "#111144",
-];
-
-const MOCK_TRANSACTIONS: Transaction[] = [
-  {
-    transactionId: 15,
-    approvedAt: "2025-10-31T11:49:38",
-    amount: "3500",
-    storeName: "지에스25 성대기숙사의점",
-    storeType: "편의점",
-  },
-  {
-    transactionId: 16,
-    approvedAt: "2025-10-25T17:32:35",
-    amount: "20300",
-    storeName: "회기버거",
-    storeType: "일반음식점",
-  },
-  {
-    transactionId: 17,
-    approvedAt: "2025-10-25T17:06:29",
-    amount: "4000",
-    storeName: "플랜비스튜디오 경희대점",
-    storeType: "사진관.현상소",
-  },
-  {
-    transactionId: 18,
-    approvedAt: "2025-10-24T18:56:57",
-    amount: "2200",
-    storeName: "씨유 수원천천신원점",
-    storeType: "편의점",
-  },
 ];
 
 const formatDate = (date: Date) => date.toISOString().slice(0, 10);
@@ -63,10 +26,10 @@ const getDefaultRange = (): DateRange => {
   return { start: formatDate(startDate), end: formatDate(endDate) };
 };
 
-const aggregateTransactions = (transactions: Transaction[]) => {
+const aggregateTransactions = (transactions: CardTransactionResponse[]) => {
   const totals = transactions.reduce<Record<string, number>>((acc, tx) => {
     const label = tx.storeType || "기타";
-    const amount = typeof tx.amount === "string" ? Number(tx.amount) : tx.amount;
+    const amount = Number(tx.amount);
     if (!Number.isFinite(amount)) return acc;
 
     acc[label] = (acc[label] ?? 0) + amount;
@@ -88,6 +51,8 @@ export default function Chart() {
   const [series, setSeries] = useState<number[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const pickerRef = useRef<HTMLDivElement | null>(null);
 
   const chartOptions = useMemo<ApexOptions>(
@@ -150,21 +115,41 @@ export default function Chart() {
   );
 
   useEffect(() => {
-    const filtered = MOCK_TRANSACTIONS.filter((tx) => {
-      const date = tx.approvedAt.slice(0, 10);
-      return date >= dateRange.start && date <= dateRange.end;
-    });
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    const aggregated = aggregateTransactions(filtered).filter(
-      (item) => Number.isFinite(item.value) && item.value > 0
-    );
+        // API 호출
+        const transactions = await getCardTransactions(
+          dateRange.start,
+          dateRange.end
+        );
 
-    setLabels(aggregated.map((item) => item.label));
-    setSeries(aggregated.map((item) => item.value));
-    setTotalAmount(
-      aggregated.reduce((sum, item) => sum + (item.value ?? 0), 0)
-    );
-  }, [dateRange.end, dateRange.start]);
+        // 데이터 집계
+        const aggregated = aggregateTransactions(transactions).filter(
+          (item) => Number.isFinite(item.value) && item.value > 0
+        );
+
+        setLabels(aggregated.map((item) => item.label));
+        setSeries(aggregated.map((item) => item.value));
+        setTotalAmount(
+          aggregated.reduce((sum, item) => sum + (item.value ?? 0), 0)
+        );
+      } catch (err) {
+        console.error('승인 내역 조회 실패:', err);
+        setError('승인 내역을 불러올 수 없습니다.');
+        // 에러 발생 시 빈 데이터로 초기화
+        setLabels([]);
+        setSeries([]);
+        setTotalAmount(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [dateRange.start, dateRange.end]);
 
   const handleRangeToggle = () => {
     setPendingRange(dateRange);
@@ -263,7 +248,11 @@ export default function Chart() {
       </div>
 
       <div className="min-h-[340px] pt-4 flex flex-col items-center justify-center">
-        {series.length > 0 ? (
+        {loading ? (
+          <p className="text-sm text-gray-400">데이터를 불러오는 중...</p>
+        ) : error ? (
+          <p className="text-sm text-red-500">{error}</p>
+        ) : series.length > 0 ? (
           <>
             <ReactApexChart
               options={chartOptions}
