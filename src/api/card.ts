@@ -124,7 +124,8 @@ export const getCardTransactions = async (
   endDate: string
 ): Promise<CardTransactionResponse[]> => {
   try {
-    const response = await apiClient.get<CardTransactionResponse[] | BaseResponse<CardTransactionResponse[]>>(
+    // 백엔드는 BaseResponse로 래핑하지 않고 직접 배열을 반환
+    const response = await apiClient.get<CardTransactionResponse[]>(
       '/api/cards/transactions',
       {
         params: {
@@ -134,17 +135,12 @@ export const getCardTransactions = async (
       }
     );
 
-    // 응답이 배열인 경우 (직접 반환)
+    // 응답이 배열인 경우 직접 반환
     if (Array.isArray(response.data)) {
       return response.data;
     }
-    
-    // BaseResponse로 래핑되어 있는 경우
-    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
-      const baseResponse = response.data as BaseResponse<CardTransactionResponse[]>;
-      return baseResponse.data || [];
-    }
 
+    // 예외 처리: 응답 형식이 예상과 다른 경우
     return [];
   } catch (error) {
     console.error('카드 승인 내역 조회 실패:', error);
