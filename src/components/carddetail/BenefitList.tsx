@@ -11,7 +11,7 @@ export default function BenefitList({ benefits }: BenefitListProps) {
     }
 
     return (
-        <div className="flex-1 px-12 pb-20 mt-8">
+        <div className="px-12 pb-20 mt-8">
             <div className="space-y-6" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
                 {benefits.map((benefit, index) => (
                     <BenefitItem
