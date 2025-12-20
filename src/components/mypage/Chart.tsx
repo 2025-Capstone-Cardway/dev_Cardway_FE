@@ -3,19 +3,14 @@ import type { ApexOptions } from "apexcharts";
 import ReactApexChart from "react-apexcharts";
 import { getCardTransactions } from "../../api/card";
 import type { CardTransactionResponse } from "../../api/card";
+import apiClient from "../../api/axios";
 
 interface DateRange {
   start: string;
   end: string;
 }
 
-const CHART_COLORS = [
-  "#f98513",
-  "#bf681f",
-  "#854b2c",
-  "#4b2e38",
-  "#111144",
-];
+const CHART_COLORS = ["#f98513", "#bf681f", "#854b2c", "#4b2e38", "#111144"];
 
 const formatDate = (date: Date) => date.toISOString().slice(0, 10);
 
@@ -43,15 +38,19 @@ const aggregateTransactions = (transactions: CardTransactionResponse[]) => {
 };
 
 export default function Chart() {
-  const [dateRange, setDateRange] = useState<DateRange>(() => getDefaultRange());
+  const [dateRange, setDateRange] = useState<DateRange>(() =>
+    getDefaultRange()
+  );
   const [pendingRange, setPendingRange] = useState<DateRange>(() =>
     getDefaultRange()
   );
+  console.log("data", dateRange, pendingRange);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [series, setSeries] = useState<number[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
   const [totalAmount, setTotalAmount] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // 차트용
+  const [syncing, setSyncing] = useState(false); // CODEF 연동용
   const [error, setError] = useState<string | null>(null);
   const pickerRef = useRef<HTMLDivElement | null>(null);
 
@@ -114,41 +113,34 @@ export default function Chart() {
     [labels]
   );
 
+  const fetchTransactions = async (range: DateRange) => {
+    console.log("정보 불러옴");
+    try {
+      setLoading(true);
+      setError(null);
+
+      const transactions = await getCardTransactions(range.start, range.end);
+
+      const aggregated = aggregateTransactions(transactions).filter(
+        (item) => item.value > 0
+      );
+
+      setLabels(aggregated.map((item) => item.label));
+      setSeries(aggregated.map((item) => item.value));
+      setTotalAmount(aggregated.reduce((sum, item) => sum + item.value, 0));
+    } catch (err) {
+      console.error("승인 내역 조회 실패:", err);
+      setError("승인 내역을 불러올 수 없습니다.");
+      setLabels([]);
+      setSeries([]);
+      setTotalAmount(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // API 호출
-        const transactions = await getCardTransactions(
-          dateRange.start,
-          dateRange.end
-        );
-
-        // 데이터 집계
-        const aggregated = aggregateTransactions(transactions).filter(
-          (item) => Number.isFinite(item.value) && item.value > 0
-        );
-
-        setLabels(aggregated.map((item) => item.label));
-        setSeries(aggregated.map((item) => item.value));
-        setTotalAmount(
-          aggregated.reduce((sum, item) => sum + (item.value ?? 0), 0)
-        );
-      } catch (err) {
-        console.error('승인 내역 조회 실패:', err);
-        setError('승인 내역을 불러올 수 없습니다.');
-        // 에러 발생 시 빈 데이터로 초기화
-        setLabels([]);
-        setSeries([]);
-        setTotalAmount(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTransactions();
+    fetchTransactions(dateRange);
   }, [dateRange.start, dateRange.end]);
 
   const handleRangeToggle = () => {
@@ -161,13 +153,36 @@ export default function Chart() {
   };
 
   const isRangeFilled = Boolean(pendingRange.start && pendingRange.end);
-  const isRangeInvalid =
-    isRangeFilled && pendingRange.start > pendingRange.end;
+  const isRangeInvalid = isRangeFilled && pendingRange.start > pendingRange.end;
 
   const applyRange = () => {
     if (!isRangeFilled || isRangeInvalid) return;
     setDateRange(pendingRange);
     setIsPickerOpen(false);
+  };
+  const getCodefConsume = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const startDate = new Date(dateRange.start);
+      const year = startDate.getFullYear();
+      const month = startDate.getMonth() + 1;
+
+      await apiClient.post(`/api/codef/sync-transactions`, null, {
+        params: {
+          year,
+          month,
+        },
+      });
+    } catch (err) {
+      console.error("소비 내역 동기화 실패:", err);
+      setError("소비 내역 업데이트에 실패했습니다.");
+    } finally {
+      setSyncing(false);
+      setLoading(false);
+      fetchTransactions(dateRange);
+    }
   };
 
   useEffect(() => {
@@ -247,12 +262,18 @@ export default function Chart() {
         )}
       </div>
 
+      <div className="w-full flex flex-row-reverse'">
+        {" "}
+        <button
+          className="border rounded-2xl text-xs text-text-sub px-3"
+          onClick={getCodefConsume}
+        >
+          {loading ? "업데이트 중..." : "내역 업데이트"}
+        </button>
+      </div>
+
       <div className="min-h-[340px] pt-4 flex flex-col items-center justify-center">
-        {loading ? (
-          <p className="text-sm text-gray-400">데이터를 불러오는 중...</p>
-        ) : error ? (
-          <p className="text-sm text-red-500">{error}</p>
-        ) : series.length > 0 ? (
+        {series.length > 0 ? (
           <>
             <ReactApexChart
               options={chartOptions}
@@ -276,4 +297,3 @@ export default function Chart() {
     </div>
   );
 }
-
