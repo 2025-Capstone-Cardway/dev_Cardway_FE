@@ -4,14 +4,9 @@ import Chart from "../components/mypage/Chart";
 
 export default function MyPage() {
   return (
-    <div>
-      {/* 사용자 정보 */}
+    <div className="flex-1 overflow-y-auto px-4">
       <UserInfo />
-      
-      {/* 내 지갑 */}
       <MyWallet />
-      
-      {/* 나의 소비내역 */}
       <Chart />
     </div>
   );

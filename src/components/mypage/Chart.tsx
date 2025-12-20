@@ -201,8 +201,8 @@ export default function Chart() {
   }, [isPickerOpen]);
 
   return (
-    <div className="w-full px-8 bg-white py-6 rounded-2xl">
-      <div className="flex flex-col gap-2 mb-4 relative">
+    <div className="w-full px-8 bg-white py-1 rounded-2xl  mt-3">
+      <div className="flex flex-col gap-2 mb-1 relative">
         <div className="flex items-center justify-between">
           <h2 className="text-md font-bold text-text-main">나의 소비내역</h2>
           <button
@@ -262,8 +262,11 @@ export default function Chart() {
         )}
       </div>
 
-      <div className="w-full flex flex-row-reverse'">
-        {" "}
+      <div className="w-full flex flex-row items-center justify-between ">
+        <span className="font-semibold text-text-main">
+          {totalAmount.toLocaleString()}원
+        </span>
+
         <button
           className="border rounded-2xl text-xs text-text-sub px-3"
           onClick={getCodefConsume}
@@ -281,12 +284,6 @@ export default function Chart() {
               type="donut"
               height={320}
             />
-            <p className="mt-4 pt-4 text-sm text-gray-600">
-              총 소비 금액{" "}
-              <span className="font-semibold text-text-main">
-                {totalAmount.toLocaleString()}원
-              </span>
-            </p>
           </>
         ) : (
           <p className="text-sm text-gray-400">
