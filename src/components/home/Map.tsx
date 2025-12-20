@@ -4,6 +4,7 @@ import usePositionStore from "../../store/position";
 import SearchResultList from "./SearchResultList";
 import curPos from "../../assets/curPosIcon.png";
 import Modal from "./Modal";
+import { useLocationBenefitChecker } from "../../hooks/useLocationBenefitChecker";
 
 declare global {
   interface Window {
@@ -21,7 +22,7 @@ export default function Map() {
   const [searchResults, setSearchResults] =
     useState<kakao.maps.services.PlacesSearchResult>([]);
   const [isSelected, setIsSelected] = useState<boolean>(false);
-
+  useLocationBenefitChecker();
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {
       const { latitude, longitude } = pos.coords;
