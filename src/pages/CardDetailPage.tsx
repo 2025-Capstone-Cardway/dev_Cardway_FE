@@ -70,8 +70,8 @@ export default function CardDetailPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-white">
-            <div className="pt-6 px-4">
+        <div className="h-screen flex flex-col bg-white overflow-y-auto">
+            <div className="pt-6 px-4 flex-shrink-0">
                 <button
                     onClick={() => navigate('/cardpage')}
                     className="text-[#111143] hover:opacity-70 transition-opacity"
@@ -83,13 +83,17 @@ export default function CardDetailPage() {
                 </button>
             </div>
 
-            <CardDetailHeader card={card} />
+            <div className="flex-shrink-0">
+                <CardDetailHeader card={card} />
+            </div>
 
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center flex-shrink-0">
                 <DeleteCardButton onDelete={handleDelete} />
             </div>
 
-            <BenefitList benefits={card.benefit} />
+            <div className="flex-1 overflow-y-auto">
+                <BenefitList benefits={card.benefit} />
+            </div>
         </div>
     );
 }
