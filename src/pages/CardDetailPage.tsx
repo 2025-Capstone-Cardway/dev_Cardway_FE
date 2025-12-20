@@ -105,7 +105,7 @@ export default function CardDetailPage() {
         <DeleteCardButton onDelete={handleDelete} />
       </div>
 
-      <div className="flex-1 overflow-y-auto mb-20">
+      <div className="flex-1 overflow-y-auto mb-20 mt-5">
         <BenefitList benefits={card.benefit} />
       </div>
     </div>
