@@ -1,6 +1,6 @@
-import apiClient from './axios';
-import type { Card, CardDetail } from '../components/mycard/types/Card';
-import basicCardImage from '../assets/card/basiccard.png';
+import apiClient from "./axios";
+import type { Card, CardDetail } from "../components/mycard/types/Card";
+import basicCardImage from "../assets/card/basiccard.png";
 
 // 내 카드 목록 API 응답 타입 (api/cards/my)
 export interface MyCardApiResponse {
@@ -9,9 +9,10 @@ export interface MyCardApiResponse {
   company: string;
   lastFourDigits: string;
   partners: string[];
-  main?: boolean;  // Java boolean isMain이 main 또는 isMain으로 직렬화될 수 있음
+  main?: boolean; // Java boolean isMain이 main 또는 isMain으로 직렬화될 수 있음
   isMain?: boolean;
-  cardImageUrl?: string;  // null일 수 있음
+  cardImageUrl?: string; // null일 수 있음
+  userCardId: number;
 }
 
 // BaseResponse로 래핑된 응답 타입
@@ -21,7 +22,6 @@ interface BaseResponse<T> {
   message: string;
   data: T;
 }
-
 
 // 카드 상세 조회 API 응답 타입 (백엔드 CardDetailResponse)
 export interface CardDetailApiResponse {
@@ -43,19 +43,21 @@ export interface CardDetailApiResponse {
  */
 export const getMyCards = async (): Promise<Card[]> => {
   try {
-    const response = await apiClient.get<BaseResponse<MyCardApiResponse[]>>('/api/cards/my');
-    
+    const response = await apiClient.get<BaseResponse<MyCardApiResponse[]>>(
+      "/api/cards/my"
+    );
+
     // BaseResponse 구조에서 data 배열 추출
     const cardsData = response.data.data || [];
-    
+
     // 디버깅: 실제 응답 데이터 확인
-    console.log('API 응답 데이터:', cardsData);
-    
+    console.log("API 응답 데이터:", cardsData);
+
     // 빈 배열인 경우 빈 배열 반환
     if (cardsData.length === 0) {
       return [];
     }
-    
+
     // 백엔드 응답(MyCardApiResponse)을 프론트엔드 Card 타입으로 변환
     const cards: Card[] = cardsData.map((card, index) => {
       // 디버깅: 각 카드의 이미지 URL 확인
@@ -64,37 +66,44 @@ export const getMyCards = async (): Promise<Card[]> => {
         cardImageUrl: card.cardImageUrl,
         isMain: card.isMain,
         main: card.main,
-        rawCard: card
+        rawCard: card,
+        userCardId: card.userCardId,
       });
-      
+
       // main 또는 isMain 필드 처리 (Java boolean isMain이 main 또는 isMain으로 직렬화될 수 있음)
       const isMainCard = card.main ?? card.isMain ?? false;
-      
+
       // cardImageUrl이 null, undefined, 빈 문자열인지 확인
-      const imageUrl = card.cardImageUrl && card.cardImageUrl.trim() !== '' 
-        ? card.cardImageUrl 
-        : basicCardImage;
-      
+      const imageUrl =
+        card.cardImageUrl && card.cardImageUrl.trim() !== ""
+          ? card.cardImageUrl
+          : basicCardImage;
+
       return {
         id: card.cardId,
-        userCardId: undefined, // UserCard ID는 별도로 조회 필요
+        userCardId: card.userCardId, // UserCard ID는 별도로 조회 필요
         name: card.cardName,
         company: card.company,
-        last4_digit: card.lastFourDigits || '',
+        last4_digit: card.lastFourDigits || "",
         isMainCard: isMainCard,
-        benefit: card.partners && card.partners.length > 0 ? [{
-          category: '',
-          title: '',
-          comment: '',
-          parterName: card.partners,
-        }] : undefined,
+        benefit:
+          card.partners && card.partners.length > 0
+            ? [
+                {
+                  category: "",
+                  title: "",
+                  comment: "",
+                  parterName: card.partners,
+                },
+              ]
+            : undefined,
         image: imageUrl,
       };
     });
-    
+
     return cards;
   } catch (error) {
-    console.error('내 카드 조회 실패:', error);
+    console.error("내 카드 조회 실패:", error);
     throw error;
   }
 };
@@ -114,16 +123,17 @@ export interface SetMainCardApiResponse {
  * @param isMain - 메인 카드 설정 여부 (true: 메인으로 등록, false: 메인 취소)
  * @returns 설정 결과
  */
-export const setMainCard = async (userCardId: number, isMain: boolean = true): Promise<SetMainCardApiResponse> => {
+export const setMainCard = async (
+  userCardId: number
+): Promise<SetMainCardApiResponse> => {
   try {
     const response = await apiClient.patch<SetMainCardApiResponse>(
-      `/api/cards/main/${userCardId}`,
-      { isMain }
+      `/api/auth/cards/main/${userCardId}`
     );
-    
+
     return response.data;
   } catch (error) {
-    console.error('메인 카드 설정 실패:', error);
+    console.error("메인 카드 설정 실패:", error);
     throw error;
   }
 };
@@ -150,7 +160,7 @@ export const getCardTransactions = async (
   try {
     // 백엔드는 BaseResponse로 래핑하지 않고 직접 배열을 반환
     const response = await apiClient.get<CardTransactionResponse[]>(
-      '/api/cards/transactions',
+      "/api/cards/transactions",
       {
         params: {
           startDate,
@@ -167,7 +177,7 @@ export const getCardTransactions = async (
     // 예외 처리: 응답 형식이 예상과 다른 경우
     return [];
   } catch (error) {
-    console.error('카드 승인 내역 조회 실패:', error);
+    console.error("카드 승인 내역 조회 실패:", error);
     throw error;
   }
 };
@@ -192,7 +202,7 @@ export const getCardDetail = async (cardId: number): Promise<CardDetail> => {
       name: cardData.cardName,
       company: cardData.cardCompany,
       image: cardData.cardImageUrl || basicCardImage,
-      benefit: cardData.benefits?.map(b => ({
+      benefit: cardData.benefits?.map((b) => ({
         category: b.categoryName,
         title: b.benefitTitle,
         comment: b.benefitComment,
@@ -202,8 +212,7 @@ export const getCardDetail = async (cardId: number): Promise<CardDetail> => {
 
     return cardDetail;
   } catch (error) {
-    console.error('카드 상세 조회 실패:', error);
+    console.error("카드 상세 조회 실패:", error);
     throw error;
   }
 };
-
