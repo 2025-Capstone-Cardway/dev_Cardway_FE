@@ -22,7 +22,7 @@ export default function NavBar() {
 
   return (
     <nav className="w-full mx-5 max-w-md bg-white border border-border-main rounded-full shadow-md">
-      <ul className="flex items-center justify-around py-2 max-w-md">
+      <ul className="flex items-center justify-around py-3 max-w-md">
         {links.map(({ to, label, icon, activeIcon }) => (
           <li key={to}>
             <NavLink to={to}>
