@@ -11,6 +11,8 @@ import CardRegisterInfoPage from "./pages/CardRegisterInfoPage";
 import CardDetailPage from "./pages/CardDetailPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AuthInitializer from "./components/auth/AuthInitializer";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -20,7 +22,7 @@ function App() {
         {/* 공개 라우트 */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/oauth/callback/*" element={<AuthCallback />} />
-        
+
         {/* 로그인 이후 보호된 라우트 ( 로그인 필요함) */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
@@ -36,6 +38,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
+      <ToastContainer />
     </BrowserRouter>
   );
 }

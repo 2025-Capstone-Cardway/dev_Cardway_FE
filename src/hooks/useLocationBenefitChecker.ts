@@ -1,19 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import apiClient from "../api/axios";
-
-export interface NotificationInfo {
-  cardCompany: string;
-  cardName: string;
-  benefitComment: string;
-  cardImage?: string;
-}
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function getDistanceFromLatLonInMeters(
   lat1: number,
   lon1: number,
   lat2: number,
   lon2: number
-): number {
+) {
   const R = 6371000;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -28,33 +23,29 @@ function getDistanceFromLatLonInMeters(
 
 const callLocationBenefitAPI = async (lat: number, long: number) => {
   try {
-    console.log("try");
     const res = await apiClient.post("/api/notification/check", {
       latitude: lat,
       longitude: long,
     });
-    console.log("nofi", res);
-    const data = res.data;
-    const benefit = data?.data?.benefit;
 
-    if (data?.data?.hasAvailableBenefits && benefit) {
-      if (Notification.permission === "granted") {
-        new Notification(`${benefit.partnerName} 혜택 발견!`, {
-          body: `${benefit.benefitTitle} - ${benefit.benefitComment}`,
+    const data = res.data?.data;
+    if (data?.hasAvailableBenefits && data.benefit) {
+      const benefit = data.benefit;
+
+      toast.success(
+        `${benefit.partnerName} 혜택 발견!\n${benefit.benefitTitle} - ${benefit.benefitComment}`,
+        {
           icon: benefit.cardImageUrl,
-        });
-      } else if (Notification.permission !== "denied") {
-        const permission = await Notification.requestPermission();
-        if (permission === "granted") {
-          new Notification(`${benefit.partnerName} 혜택 발견!`, {
-            body: `${benefit.benefitTitle} - ${benefit.benefitComment}`,
-            icon: benefit.cardImageUrl,
-          });
+          autoClose: 5000,
+          position: "top-center",
         }
-      }
+      );
+    } else {
+      console.log("혜택 없음");
     }
   } catch (e) {
     console.error("혜택 API 호출 실패:", e);
+    toast.error("근처 혜택 정보를 가져오는 데 실패했어요.");
   }
 };
 
@@ -63,15 +54,32 @@ export const useLocationBenefitChecker = () => {
     lat: number;
     long: number;
   } | null>(null);
+  const lastMovedAtRef = useRef<number | null>(null);
   const prevPositionRef = useRef<{ lat: number; long: number } | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ✅ 브라우저에서 실시간 위치 추적
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        setUserPosition({ lat: latitude, long: longitude });
+        const newPosition = { lat: latitude, long: longitude };
+
+        setUserPosition(newPosition);
+
+        const prev = prevPositionRef.current;
+
+        if (
+          !prev ||
+          getDistanceFromLatLonInMeters(
+            prev.lat,
+            prev.long,
+            newPosition.lat,
+            newPosition.long
+          ) > 1
+        ) {
+          // 위치 변경됨
+          lastMovedAtRef.current = Date.now();
+          prevPositionRef.current = newPosition;
+        }
       },
       (err) => {
         console.error("GPS 위치 추적 실패:", err);
@@ -83,45 +91,25 @@ export const useLocationBenefitChecker = () => {
       }
     );
 
-    return () => {
-      navigator.geolocation.clearWatch(watchId);
-    };
+    return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  // ✅ 위치 변화 감지 + 타이머 설정
+  // 10초 간격 체크: 위치가 60초간 안 바뀌면 API 호출
   useEffect(() => {
-    if (!userPosition) return;
+    const interval = setInterval(() => {
+      const now = Date.now();
 
-    const prev = prevPositionRef.current;
+      if (lastMovedAtRef.current && userPosition) {
+        const diff = (now - lastMovedAtRef.current) / 1000;
+        // console.log("정지 시간:", diff.toFixed(1), "초");
 
-    if (prev) {
-      const distance = getDistanceFromLatLonInMeters(
-        prev.lat,
-        prev.long,
-        userPosition.lat,
-        userPosition.long
-      );
-
-      if (distance > 30) {
-        console.log("위치 변경");
-        if (timerRef.current) clearTimeout(timerRef.current);
-        prevPositionRef.current = userPosition;
-
-        timerRef.current = setTimeout(() => {
+        if (diff > 60) {
           callLocationBenefitAPI(userPosition.lat, userPosition.long);
-        }, 10 * 1000);
+          lastMovedAtRef.current = now;
+        }
       }
-    } else {
-      console.log("최초 위치");
-      prevPositionRef.current = userPosition;
+    }, 10 * 1000);
 
-      timerRef.current = setTimeout(() => {
-        callLocationBenefitAPI(userPosition.lat, userPosition.long);
-      }, 10 * 1000);
-    }
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+    return () => clearInterval(interval);
   }, [userPosition]);
 };
