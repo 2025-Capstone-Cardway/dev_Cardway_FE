@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Card } from './types/Card';
 import useCardNavigation from '../../hooks/useCardNavigation';
 
@@ -10,6 +11,17 @@ interface CardProps {
 export default function CardView({ card, onToggleMainCard }: CardProps) {
     const {id, image, name, company, benefit, isMainCard} = card;
     const navigateToCard = useCardNavigation();
+    const [isLandscape, setIsLandscape] = useState(false);
+
+    const handleImageLoad = (e: React.UIEvent<HTMLImageElement>) => {
+      const img = e.currentTarget;
+      const { naturalWidth, naturalHeight } = img;
+      if (naturalWidth > naturalHeight) {
+        setIsLandscape(false);
+      } else {
+        setIsLandscape(true);
+      }
+    };
 
     const containerClasses = isMainCard
       ? "border-2 border-orange-main shadow-lg"
@@ -26,13 +38,18 @@ export default function CardView({ card, onToggleMainCard }: CardProps) {
         style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
       >
         {/* Card Image */}
-        {image && (
-          <img 
-            src={image} 
-            alt={`${name}카드이미지`} 
-            className="w-[90px] h-[139px] object-cover flex-none"
-          />
-        )}
+        <div className="w-[90px] h-[139px] rounded-[5px] flex-none overflow-hidden flex items-center justify-center">
+          {image && (
+            <img 
+              src={image} 
+              alt={`${name}카드이미지`} 
+              onLoad={handleImageLoad}
+              className={`object-contain max-w-full min-h-full ${
+                isLandscape ? "" : "rotate-90"
+              }`}
+            />
+          )}
+        </div>
         
         {/* Content Container */}
         <div className="flex flex-col items-start gap-[10px] flex-1 min-w-0 h-[131px] pr-[30px]">
