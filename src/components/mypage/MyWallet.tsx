@@ -8,7 +8,18 @@ import Loading from '../common/Loading';
 export default function MyWallet() {
     const [cards, setCards] = useState<Card[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [landscapeStates, setLandscapeStates] = useState<{ [key: number]: boolean }>({});
     const navigateToCard = useCardNavigation();
+
+    const handleImageLoad = (cardId: number) => (e: React.UIEvent<HTMLImageElement>) => {
+      const img = e.currentTarget;
+      const { naturalWidth, naturalHeight } = img;
+      // 가로형 이미지(높이가 짧은)는 true로 설정 - 회전 필요
+      setLandscapeStates(prev => ({
+        ...prev,
+        [cardId]: naturalWidth > naturalHeight
+      }));
+    };
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -68,7 +79,7 @@ export default function MyWallet() {
                 >
                     {/* 카드 이미지 */}
                     <motion.div 
-                    className="w-24 h-36 rounded-xl overflow-hidden shadow-md"
+                    className="w-24 h-36 rounded-xl overflow-hidden shadow-md flex items-center justify-center"
                     whileHover={{
                         boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)"
                     }}
@@ -76,7 +87,12 @@ export default function MyWallet() {
                     <img 
                         src={card.image} 
                         alt={card.name}
-                        className="w-full h-full object-cover"
+                        onLoad={handleImageLoad(card.id)}
+                        className={`object-contain ${
+                          landscapeStates[card.id] 
+                            ? "h-full rotate-90" 
+                            : "w-full"
+                        }`}
                     />
                     </motion.div>
                     

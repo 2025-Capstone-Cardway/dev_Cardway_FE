@@ -9,7 +9,9 @@ export interface MyCardApiResponse {
   company: string;
   lastFourDigits: string;
   partners: string[];
-  main: boolean;
+  main?: boolean;  // Java boolean isMain이 main 또는 isMain으로 직렬화될 수 있음
+  isMain?: boolean;
+  cardImageUrl?: string;  // null일 수 있음
 }
 
 // BaseResponse로 래핑된 응답 타입
@@ -46,27 +48,49 @@ export const getMyCards = async (): Promise<Card[]> => {
     // BaseResponse 구조에서 data 배열 추출
     const cardsData = response.data.data || [];
     
+    // 디버깅: 실제 응답 데이터 확인
+    console.log('API 응답 데이터:', cardsData);
+    
     // 빈 배열인 경우 빈 배열 반환
     if (cardsData.length === 0) {
       return [];
     }
     
     // 백엔드 응답(MyCardApiResponse)을 프론트엔드 Card 타입으로 변환
-    const cards: Card[] = cardsData.map((card, index) => ({
-      id: card.cardId,
-      userCardId: undefined, // UserCard ID는 별도로 조회 필요
-      name: card.cardName,
-      company: card.company,
-      last4_digit: card.lastFourDigits || '',
-      isMainCard: card.main,
-      benefit: card.partners && card.partners.length > 0 ? [{
-        category: '',
-        title: '',
-        comment: '',
-        parterName: card.partners,
-      }] : undefined,
-      image: basicCardImage, // 기본 카드 이미지 사용
-    }));
+    const cards: Card[] = cardsData.map((card, index) => {
+      // 디버깅: 각 카드의 이미지 URL 확인
+      console.log(`카드 ${index}:`, {
+        cardName: card.cardName,
+        cardImageUrl: card.cardImageUrl,
+        isMain: card.isMain,
+        main: card.main,
+        rawCard: card
+      });
+      
+      // main 또는 isMain 필드 처리 (Java boolean isMain이 main 또는 isMain으로 직렬화될 수 있음)
+      const isMainCard = card.main ?? card.isMain ?? false;
+      
+      // cardImageUrl이 null, undefined, 빈 문자열인지 확인
+      const imageUrl = card.cardImageUrl && card.cardImageUrl.trim() !== '' 
+        ? card.cardImageUrl 
+        : basicCardImage;
+      
+      return {
+        id: card.cardId,
+        userCardId: undefined, // UserCard ID는 별도로 조회 필요
+        name: card.cardName,
+        company: card.company,
+        last4_digit: card.lastFourDigits || '',
+        isMainCard: isMainCard,
+        benefit: card.partners && card.partners.length > 0 ? [{
+          category: '',
+          title: '',
+          comment: '',
+          parterName: card.partners,
+        }] : undefined,
+        image: imageUrl,
+      };
+    });
     
     return cards;
   } catch (error) {
