@@ -33,9 +33,8 @@ const callLocationBenefitAPI = async (lat: number, long: number) => {
       const benefit = data.benefit;
 
       toast.success(
-        `${benefit.partnerName} 혜택 발견!\n${benefit.benefitTitle} - ${benefit.benefitComment}`,
+        `${benefit.partnerName} 혜택 발견! =>  💸${benefit.cardName}`,
         {
-          icon: benefit.cardImageUrl,
           autoClose: 5000,
           position: "top-center",
         }
